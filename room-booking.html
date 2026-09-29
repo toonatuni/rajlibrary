@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Room Booking | Raj Library
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/booking.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-header.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-theme.css"
+    >
+
+</head>
+
+
+<body class="booking-page">
+
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="booking-navbar">
+
+
+    <a
+        href="rooms.html"
+        class="booking-brand"
+    >
+
+
+        <div class="booking-logo">
+
+            RL
+
+        </div>
+
+
+        <div>
+
+            <h2>
+                Raj Library
+            </h2>
+
+            <span>
+                Library & Room Management
+            </span>
+
+        </div>
+
+
+    </a>
+
+
+
+    <a
+        href="rooms.html"
+        class="booking-close"
+    >
+
+        ×
+
+    </a>
+
+
+</header>
+
+
+
+<!-- =========================
+     BOOKING WRAPPER
+========================= -->
+
+<main class="room-booking-wrapper">
+
+
+    <section class="room-booking-card">
+
+
+                <!-- =========================
+                     RIGHT SIDE
+                ========================== -->
+
+        <div class="room-booking-form-side">
+
+
+            <div class="booking-form-header">
+
+                <span id="bookingRoomName" class="booking-room-name-data" aria-hidden="true">
+                    Loading Room...
+                </span>
+
+                <span>
+                    ROOM RESERVATION
+                </span>
+
+
+                <h2>
+                    Book Your Room.
+                </h2>
+
+
+                <p>
+
+                    Complete the details below
+                    to request your room booking.
+
+                </p>
+
+
+            </div>
+
+
+
+            <!-- =========================
+                 ROOM DETAILS
+            ========================== -->
+
+            <div class="selected-room-box">
+
+
+                <div class="selected-room-top">
+
+
+                    <span>
+                        SELECTED ROOM
+                    </span>
+
+
+                    <div
+                        id="bookingRoomStatus"
+                        class="booking-room-status"
+                    >
+
+                        Available
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="selected-room-details">
+
+
+                    <div>
+
+
+                        <span>
+                            Room
+                        </span>
+
+
+                        <strong
+                            id="bookingRoomNumber"
+                        >
+
+                            Loading...
+
+                        </strong>
+
+
+                    </div>
+
+
+
+                    <div>
+
+
+                        <span>
+                            Capacity
+                        </span>
+
+
+                        <strong
+                            id="bookingRoomCapacity"
+                        >
+
+                            -
+
+                        </strong>
+
+
+                    </div>
+
+
+
+                    <div>
+
+
+                        <span>
+                            Monthly Rent
+                        </span>
+
+
+                        <strong
+                            id="bookingRoomRent"
+                        >
+
+                            ₹0
+
+                        </strong>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =========================
+                 BOOKING FORM
+            ========================== -->
+
+            <form
+                id="roomBookingForm"
+                class="modern-booking-form"
+            >
+
+
+                <!-- USER NAME -->
+
+                <div class="booking-input-group">
+
+
+                    <label
+                        for="bookingUserName"
+                    >
+
+                        Your Name
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="bookingUserName"
+                        placeholder="Enter your name"
+                        required
+                    >
+
+
+                </div>
+
+
+
+                <!-- MOBILE -->
+
+                <div class="booking-input-group">
+
+
+                    <label
+                        for="bookingMobile"
+                    >
+
+                        Mobile Number
+
+                    </label>
+
+
+                    <input
+                        type="tel"
+                        id="bookingMobile"
+                        placeholder="Enter mobile number"
+                        inputmode="numeric"
+                        required
+                    >
+
+
+                </div>
+
+
+
+                <!-- BOOKING DATE -->
+
+                <div class="booking-input-group">
+
+
+                    <label
+                        for="bookingDate"
+                    >
+
+                        Booking Start Date
+
+                    </label>
+
+
+                    <input
+                        type="date"
+                        id="bookingDate"
+                        required
+                    >
+
+
+                </div>
+
+
+
+                <!-- TOTAL AMOUNT -->
+
+                <div class="booking-total-box">
+
+
+                    <span>
+                        Total Amount
+                    </span>
+
+
+                    <strong
+                        id="bookingTotalAmount"
+                    >
+
+                        ₹0
+
+                    </strong>
+
+
+                </div>
+
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    id="confirmRoomBooking"
+                    class="confirm-booking-btn"
+                >
+
+                    Confirm Booking
+
+                </button>
+
+
+
+                <!-- MESSAGE -->
+
+                <p
+                    id="bookingMessage"
+                    class="booking-message"
+                ></p>
+
+
+            </form>
+
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+
+    <a href="index.html" class="mobile-bottom-nav-item">
+        <span>Home</span>
+    </a>
+
+    <a href="library.html" class="mobile-bottom-nav-item">
+        <span>Library</span>
+    </a>
+
+    <a href="rooms.html" class="mobile-bottom-nav-item active">
+        <span>Rooms</span>
+    </a>
+
+    <a href="user-dashboard.html" class="mobile-bottom-nav-item">
+        <span>My Bookings</span>
+    </a>
+
+    <a href="profile.html" class="mobile-bottom-nav-item">
+        <span>Profile</span>
+    </a>
+
+</nav>
+
+
+
+<!-- =========================
+     SCRIPTS
+========================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabase.js"></script>
+<script src="js/form-validation.js"></script>
+
+<script src="js/room-booking.js"></script>
+<script src="js/site-header.js"></script>
+<script src="js/public.js"></script>
+
+
+</body>
+
+</html>

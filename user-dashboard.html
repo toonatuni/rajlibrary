@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        My Dashboard | Raj Library
+    </title>
+
+
+    <!-- MAIN CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+
+    <!-- DASHBOARD CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/dashboard.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-header.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-theme.css"
+    >
+
+
+</head>
+
+
+<body class="user-dashboard-page">
+
+
+<!-- =========================================
+     DASHBOARD NAVBAR
+========================================= -->
+
+<header class="user-dashboard-navbar site-header">
+
+
+    <!-- LEFT -->
+
+    <div class="navbar-left">
+        <button class="hamburger" id="menuButton" type="button" aria-label="Open navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <a
+            href="index.html"
+            class="dashboard-brand"
+        >
+
+
+        <div class="dashboard-brand-logo">
+
+            RL
+
+        </div>
+
+
+        <div class="dashboard-brand-text">
+
+
+            <h1>
+
+                Raj Library
+
+            </h1>
+
+
+            <span>
+
+                Library & Room Management
+
+            </span>
+
+
+        </div>
+
+
+        </a>
+    </div>
+
+
+
+    <!-- RIGHT -->
+
+    <div class="dashboard-nav-right">
+
+
+        <!-- HOME -->
+
+        <a
+            href="index.html"
+            class="dashboard-home-link"
+        >
+
+            Home
+
+        </a>
+
+
+
+        <!-- USER PROFILE -->
+
+        <div
+            class="dashboard-profile-menu"
+        >
+
+
+            <button
+                id="dashboardProfileButton"
+                class="dashboard-profile-button"
+                type="button"
+            >
+
+
+                <span
+                    id="dashboardInitials"
+                >
+
+                    U
+
+                </span>
+
+
+            </button>
+
+
+
+            <!-- DROPDOWN -->
+
+            <div
+                id="dashboardProfileDropdown"
+                class="dashboard-profile-dropdown"
+            >
+
+
+                <!-- USER INFO -->
+
+                <div
+                    class="dropdown-user-info"
+                >
+
+
+                    <div
+                        id="dropdownInitials"
+                        class="dropdown-profile-initials"
+                    >
+
+                        U
+
+                    </div>
+
+
+                    <div>
+
+
+                        <strong
+                            id="dropdownUserName"
+                        >
+
+                            Loading...
+
+                        </strong>
+
+
+                        <span
+                            id="dropdownUserEmail"
+                        >
+
+                            Loading...
+
+                        </span>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- LINKS -->
+
+                <div
+                    class="dropdown-links"
+                >
+ 
+ 
+                    <a
+                        href="user-dashboard.html"
+                    >
+ 
+                        My Dashboard
+ 
+                    </a>
+ 
+ 
+                    <a
+                        href="profile.html"
+                    >
+ 
+                        My Profile
+ 
+                    </a>
+ 
+ 
+                    <a
+                        href="my-library-bookings.html"
+                    >
+ 
+                        My Library
+ 
+                    </a>
+ 
+ 
+                    <a
+                        href="my-room-bookings.html"
+                    >
+ 
+                        My Room Bookings
+ 
+                    </a>
+ 
+ 
+                    <a
+                        href="settings.html"
+                    >
+ 
+                        Account Settings
+ 
+                    </a>
+
+
+                </div>
+
+
+
+                <!-- LOGOUT -->
+
+                <button
+                    id="dropdownLogoutBtn"
+                    class="dropdown-logout-button"
+                    type="button"
+                >
+
+                    Logout
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</header>
+
+<div class="site-header-spacer" aria-hidden="true"></div>
+
+
+
+<!-- =========================================
+     MAIN DASHBOARD
+========================================= -->
+
+<main
+    class="user-dashboard-main"
+>
+
+
+    <!-- =====================================
+         WELCOME SECTION
+    ====================================== -->
+
+    <section
+        class="dashboard-welcome-section"
+    >
+
+
+        <div
+            class="dashboard-welcome-content"
+        >
+
+
+            <span
+                class="dashboard-section-tag"
+            >
+
+                MY DASHBOARD
+
+            </span>
+
+
+            <h2>
+
+                Welcome back,
+
+                <span
+                    id="welcomeUserName"
+                >
+
+                    User
+
+                </span>
+
+            </h2>
+
+
+            <p>
+
+                Manage your library membership,
+                room bookings and account from
+                one place.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- USER PROFILE CARD -->
+
+        <div
+            class="welcome-profile-card"
+        >
+
+
+            <div
+                id="welcomeInitials"
+                class="welcome-profile-initials"
+            >
+
+                U
+
+            </div>
+
+
+            <div>
+
+
+                <strong
+                    id="welcomeProfileName"
+                >
+
+                    Loading...
+
+                </strong>
+
+
+                <span
+                    id="welcomeProfileEmail"
+                >
+
+                    Loading...
+
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================
+         SUMMARY CARDS
+    ====================================== -->
+
+    <section
+        class="dashboard-summary-grid"
+    >
+
+
+        <!-- LIBRARY -->
+
+        <div
+            class="dashboard-summary-card"
+        >
+
+
+            <span
+                class="summary-label"
+            >
+
+                LIBRARY BOOKING
+
+            </span>
+
+
+            <strong
+                id="libraryBookingCount"
+            >
+
+                0
+
+            </strong>
+
+
+            <p>
+
+                Active library bookings
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- ROOM -->
+
+        <div
+            class="dashboard-summary-card"
+        >
+
+
+            <span
+                class="summary-label"
+            >
+
+                ROOM BOOKING
+
+            </span>
+
+
+            <strong
+                id="roomBookingCount"
+            >
+
+                0
+
+            </strong>
+
+
+            <p>
+
+                Active room bookings
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- TOTAL -->
+
+        <div
+            class="dashboard-summary-card"
+        >
+
+
+            <span
+                class="summary-label"
+            >
+
+                TOTAL BOOKINGS
+
+            </span>
+
+
+            <strong
+                id="totalBookingCount"
+            >
+
+                0
+
+            </strong>
+
+
+            <p>
+
+                Your booking history
+
+            </p>
+
+
+        </div>
+
+
+
+    </section>
+
+
+
+    <!-- =====================================
+         DASHBOARD CONTENT
+    ====================================== -->
+
+    <section
+        class="dashboard-content-grid"
+    >
+
+
+        <!-- =================================
+             LEFT SIDE
+        ================================== -->
+
+        <div
+            class="dashboard-main-column"
+        >
+
+
+            <!-- =============================
+                 LIBRARY BOOKING
+            ============================== -->
+
+            <section
+                id="library-booking"
+                class="dashboard-content-card"
+            >
+
+
+                <div
+                    class="dashboard-card-header"
+                >
+
+
+                    <div>
+
+
+                        <span>
+
+                            LIBRARY
+
+                        </span>
+
+
+                        <h3>
+
+                            My Library Booking
+
+                        </h3>
+
+
+                    </div>
+
+
+                    <a
+                        href="library.html"
+                        class="small-action-button"
+                    >
+
+                        Browse Library
+
+                    </a>
+
+
+                </div>
+
+
+
+                <div
+                    id="libraryBookingContent"
+                    class="booking-dashboard-content"
+                >
+
+
+                    <div
+                        class="dashboard-empty-state"
+                    >
+
+
+                        <h4>
+
+                            No Library Booking
+
+                        </h4>
+
+
+                        <p>
+
+                            You have not booked a
+                            library seat yet.
+
+                        </p>
+
+
+                        <a
+                            href="library.html"
+                            class="dashboard-action-button"
+                        >
+
+                            Explore Library
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =============================
+                 ROOM BOOKING
+            ============================== -->
+
+            <section
+                id="room-booking"
+                class="dashboard-content-card"
+            >
+
+
+                <div
+                    class="dashboard-card-header"
+                >
+
+
+                    <div>
+
+
+                        <span>
+
+                            ROOMS
+
+                        </span>
+
+
+                        <h3>
+
+                            My Room Booking
+
+                        </h3>
+
+
+                    </div>
+
+
+                    <a
+                        href="rooms.html"
+                        class="small-action-button"
+                    >
+
+                        Browse Rooms
+
+                    </a>
+
+
+                </div>
+
+
+
+                <div
+                    id="roomBookingContent"
+                    class="booking-dashboard-content"
+                >
+
+
+                    <div
+                        class="dashboard-empty-state"
+                    >
+
+
+                        <h4>
+
+                            No Room Booking
+
+                        </h4>
+
+
+                        <p>
+
+                            You have not booked a
+                            room yet.
+
+                        </p>
+
+
+                        <a
+                            href="rooms.html"
+                            class="dashboard-action-button"
+                        >
+
+                            Explore Rooms
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+            <section class="dashboard-content-card" id="booking-history">
+                <div class="dashboard-card-header">
+                    <div>
+                        <span>HISTORY</span>
+                        <h3>Complete Booking History</h3>
+                    </div>
+                </div>
+                <div id="bookingHistoryContent" class="booking-dashboard-content">
+                    Loading booking history...
+                </div>
+            </section>
+
+        </div>
+
+        <!-- =================================
+             RIGHT SIDE
+        ================================== -->
+
+        <aside
+            class="dashboard-side-column"
+        >
+
+
+            <!-- =============================
+                 PROFILE
+            ============================== -->
+
+            <section
+                id="profile"
+                class="dashboard-content-card profile-card"
+            >
+
+
+                <div
+                    class="dashboard-card-header"
+                >
+
+
+                    <div>
+
+
+                        <span>
+
+                            ACCOUNT
+
+                        </span>
+
+
+                        <h3>
+
+                            My Profile
+
+                        </h3>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div
+                    id="userProfile"
+                    class="dashboard-profile-content"
+                >
+
+                    Loading profile...
+
+                </div>
+
+
+            </section>
+
+
+        </aside>
+
+
+    </section>
+
+
+</main>
+
+
+<nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+
+    <a href="index.html" class="mobile-bottom-nav-item">
+        <span>Home</span>
+    </a>
+
+    <a href="library.html" class="mobile-bottom-nav-item">
+        <span>Library</span>
+    </a>
+
+    <a href="rooms.html" class="mobile-bottom-nav-item">
+        <span>Rooms</span>
+    </a>
+
+    <a href="user-dashboard.html" class="mobile-bottom-nav-item active">
+        <span>My Bookings</span>
+    </a>
+
+    <a href="user-dashboard.html#profile" class="mobile-bottom-nav-item">
+        <span>Profile</span>
+    </a>
+
+</nav>
+
+
+
+<!-- =========================================
+     SUPABASE
+========================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script
+    src="js/supabase.js"
+></script>
+
+<script
+    src="js/form-validation.js"
+></script>
+
+
+<script
+    src="js/user-dashboard.js"
+></script>
+
+<script src="js/site-header.js"></script>
+
+</body>
+
+</html>

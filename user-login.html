@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Sign In | Raj Library
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/auth.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-header.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-theme.css"
+    >
+
+</head>
+
+
+<body class="auth-page">
+
+
+<div class="auth-background"></div>
+
+
+<!-- =========================
+     AUTH NAVBAR
+========================= -->
+
+<header class="auth-navbar">
+
+    <a
+        href="index.html"
+        class="auth-brand"
+    >
+
+        <div class="auth-logo">
+            RL
+        </div>
+
+        <span>
+            Raj Library
+        </span>
+
+    </a>
+
+
+    <a
+        href="index.html"
+        class="auth-close"
+    >
+        ×
+    </a>
+
+</header>
+
+
+
+<!-- =========================
+     AUTH CONTAINER
+========================= -->
+
+<main class="auth-wrapper">
+
+
+    <div class="auth-card">
+
+
+        <!-- HEADER -->
+
+        <div class="auth-header">
+
+            <span>
+                RAJ LIBRARY ACCOUNT
+            </span>
+
+
+            <h1 id="authTitle">
+                Welcome Back.
+            </h1>
+
+
+            <p id="authSubtitle">
+                Sign in to manage your
+                library and room bookings.
+            </p>
+
+        </div>
+
+
+
+        <!-- AUTH SWITCH -->
+
+        <div class="auth-switch">
+
+
+            <button
+                type="button"
+                class="auth-tab active"
+                id="signInTab"
+            >
+                Sign In
+            </button>
+
+
+            <button
+                type="button"
+                class="auth-tab"
+                id="signUpTab"
+            >
+                Sign Up
+            </button>
+
+
+        </div>
+
+
+
+        <!-- GOOGLE LOGIN -->
+
+        <button
+            type="button"
+            class="google-login"
+            onclick="googleLogin()"
+        >
+
+            <span class="google-letter">
+                G
+            </span>
+
+            Continue with Google
+
+        </button>
+
+
+
+        <!-- DIVIDER -->
+
+        <div class="auth-divider">
+
+            <span>
+                or continue with email
+            </span>
+
+        </div>
+
+
+
+        <!-- =========================
+             LOGIN FORM
+        ========================== -->
+
+        <form
+            id="userLoginForm"
+            class="auth-form"
+        >
+
+
+            <!-- EMAIL -->
+
+            <input
+                id="loginEmail"
+                type="email"
+                placeholder="Email address"
+                required
+            >
+
+
+
+            <!-- PASSWORD -->
+
+            <div class="password-wrapper">
+
+                <input
+                    id="loginPassword"
+                    type="password"
+                    placeholder="Password"
+                    required
+                >
+
+
+                <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="togglePassword('loginPassword', this)"
+                >
+                    Show
+                </button>
+
+            </div>
+
+
+
+            <button
+                type="submit"
+                class="auth-submit"
+            >
+                Sign In
+            </button>
+
+
+
+            <div
+                id="loginMessage"
+                class="auth-message"
+            ></div>
+
+
+        </form>
+
+
+
+        <!-- =========================
+             SIGNUP FORM
+        ========================== -->
+
+        <form
+            id="userSignupForm"
+            class="auth-form hidden"
+        >
+
+
+            <!-- EMAIL -->
+
+            <input
+                id="signupEmail"
+                type="email"
+                placeholder="Email address"
+                required
+            >
+
+
+
+            <!-- PASSWORD -->
+
+            <div class="password-wrapper">
+
+                <input
+                    id="signupPassword"
+                    type="password"
+                    placeholder="Password (minimum 6 characters)"
+                    minlength="6"
+                    required
+                >
+
+
+                <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="togglePassword('signupPassword', this)"
+                >
+                    Show
+                </button>
+
+            </div>
+
+
+
+            <button
+                type="submit"
+                class="auth-submit"
+            >
+                Create Account
+            </button>
+
+
+
+            <div
+                id="signupMessage"
+                class="auth-message"
+            ></div>
+
+
+        </form>
+
+
+    </div>
+
+
+</main>
+
+
+
+<!-- SUPABASE -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabase.js"></script>
+
+<script src="js/form-validation.js"></script>
+<script src="js/user-auth.js"></script>
+<script src="js/site-header.js"></script>
+<script src="js/public.js"></script>
+
+
+
+<!-- =========================
+     TAB SWITCHING
+========================= -->
+
+<script>
+
+
+const signInTab =
+    document.getElementById(
+        "signInTab"
+    );
+
+
+const signUpTab =
+    document.getElementById(
+        "signUpTab"
+    );
+
+
+const loginForm =
+    document.getElementById(
+        "userLoginForm"
+    );
+
+
+const signupForm =
+    document.getElementById(
+        "userSignupForm"
+    );
+
+
+const authTitle =
+    document.getElementById(
+        "authTitle"
+    );
+
+
+const authSubtitle =
+    document.getElementById(
+        "authSubtitle"
+    );
+
+
+
+/* =========================
+   SIGN IN TAB
+========================= */
+
+signInTab.addEventListener(
+
+    "click",
+
+    () => {
+
+
+        signInTab.classList.add(
+            "active"
+        );
+
+
+        signUpTab.classList.remove(
+            "active"
+        );
+
+
+        loginForm.classList.remove(
+            "hidden"
+        );
+
+
+        signupForm.classList.add(
+            "hidden"
+        );
+
+
+        authTitle.textContent =
+            "Welcome Back.";
+
+
+        authSubtitle.textContent =
+            "Sign in to manage your library and room bookings.";
+
+
+    }
+
+);
+
+
+
+/* =========================
+   SIGN UP TAB
+========================= */
+
+signUpTab.addEventListener(
+
+    "click",
+
+    () => {
+
+
+        signUpTab.classList.add(
+            "active"
+        );
+
+
+        signInTab.classList.remove(
+            "active"
+        );
+
+
+        signupForm.classList.remove(
+            "hidden"
+        );
+
+
+        loginForm.classList.add(
+            "hidden"
+        );
+
+
+        authTitle.textContent =
+            "Join Raj Library.";
+
+
+        authSubtitle.textContent =
+            "Create your account and manage your study space.";
+
+
+    }
+
+);
+
+
+</script>
+
+
+</body>
+
+</html>

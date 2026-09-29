@@ -1,0 +1,945 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/* =========================================
+   RAJ LIBRARY AUTH PAGE
+========================================= */
+
+
+/* =========================================
+   PAGE
+========================================= */
+
+.auth-page {
+
+    min-height:
+        100vh;
+
+    margin:
+        0;
+
+    background:
+        #e9edf2;
+
+    position:
+        relative;
+
+    overflow-x:
+        hidden;
+
+}
+
+.auth-page * {
+    font-family: inherit;
+}
+
+.auth-logo {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.auth-page * {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+.auth-logo {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.auth-navbar {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+
+/* =========================================
+   BACKGROUND
+========================================= */
+
+.auth-background {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        -1;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(20, 45, 70, 0.95),
+            rgba(70, 95, 120, 0.80)
+        );
+
+}
+
+
+/* =========================================
+   AUTH NAVBAR
+========================================= */
+
+.auth-navbar {
+
+    width:
+        100%;
+
+    padding:
+        22px 7%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+}
+
+
+/* =========================================
+   BRAND
+========================================= */
+
+.auth-brand {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        14px;
+
+    color:
+        white;
+
+    text-decoration:
+        none;
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size:
+        30px;
+
+    font-weight:
+        600;
+
+}
+
+
+/* =========================================
+   RL LOGO
+========================================= */
+
+.auth-logo {
+
+    width:
+        50px;
+
+    height:
+        50px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        2px solid #c59b5d;
+
+    border-radius:
+        12px;
+
+    color:
+        #c59b5d;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        17px;
+
+    font-weight:
+        800;
+
+}
+
+
+/* =========================================
+   CLOSE BUTTON
+========================================= */
+
+.auth-close {
+
+    width:
+        48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(255, 255, 255, 0.14);
+
+    color:
+        white;
+
+    text-decoration:
+        none;
+
+    font-size:
+        32px;
+
+    line-height:
+        1;
+
+    transition:
+        0.3s;
+
+}
+
+
+.auth-close:hover {
+
+    background:
+        rgba(255, 255, 255, 0.25);
+
+    transform:
+        rotate(90deg);
+
+}
+
+
+/* =========================================
+   AUTH WRAPPER
+========================================= */
+
+.auth-wrapper {
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    padding:
+        30px 20px 80px;
+
+}
+
+
+/* =========================================
+   AUTH CARD
+========================================= */
+
+.auth-card {
+
+    width:
+        100%;
+
+    max-width:
+        600px;
+
+    padding:
+        50px;
+
+    border-radius:
+        30px;
+
+    background:
+        rgba(255, 255, 255, 0.94);
+
+    backdrop-filter:
+        blur(20px);
+
+    -webkit-backdrop-filter:
+        blur(20px);
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.25);
+
+}
+
+
+/* =========================================
+   AUTH HEADER
+========================================= */
+
+.auth-header span {
+
+    color:
+        #c59b5d;
+
+    font-size:
+        12px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        5px;
+
+}
+
+
+.auth-header h1 {
+
+    margin:
+        18px 0 12px;
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size:
+        48px;
+
+    font-weight:
+        500;
+
+    color:
+        #172033;
+
+}
+
+
+.auth-header p {
+
+    margin:
+        0;
+
+    color:
+        #667085;
+
+    font-size:
+        17px;
+
+    line-height:
+        1.6;
+
+}
+
+
+/* =========================================
+   AUTH SWITCH
+========================================= */
+
+.auth-switch {
+
+    margin-top:
+        35px;
+
+    padding:
+        5px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    border:
+        1px solid #d9e0e8;
+
+    border-radius:
+        16px;
+
+    background:
+        #f8fafc;
+
+}
+
+
+/* =========================================
+   AUTH TABS
+========================================= */
+
+.auth-tab {
+
+    border:
+        none;
+
+    padding:
+        15px;
+
+    background:
+        transparent;
+
+    border-radius:
+        12px;
+
+    font-size:
+        16px;
+
+    font-weight:
+        700;
+
+    color:
+        #667085;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.3s;
+
+}
+
+
+.auth-tab:hover {
+
+    color:
+        #1e3a5f;
+
+}
+
+
+.auth-tab.active {
+
+    background:
+        #1e3a5f;
+
+    color:
+        white;
+
+    box-shadow:
+        0 5px 15px rgba(30, 58, 95, 0.20);
+
+}
+
+
+/* =========================================
+   GOOGLE LOGIN BUTTON
+========================================= */
+
+.google-login {
+
+    width:
+        100%;
+
+    margin-top:
+        25px;
+
+    padding:
+        17px;
+
+    border:
+        1px solid #d9e0e8;
+
+    border-radius:
+        14px;
+
+    background:
+        white;
+
+    color:
+        #253041;
+
+    font-size:
+        17px;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.3s;
+
+}
+
+
+.google-login:hover {
+
+    background:
+        #f8fafc;
+
+    border-color:
+        #bfc9d6;
+
+}
+
+
+.google-letter {
+
+    margin-right:
+        10px;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+    color:
+        #315d8c;
+
+}
+
+
+/* =========================================
+   DIVIDER
+========================================= */
+
+.auth-divider {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        15px;
+
+    margin:
+        28px 0;
+
+    color:
+        #8a94a3;
+
+    font-size:
+        14px;
+
+}
+
+
+.auth-divider::before,
+.auth-divider::after {
+
+    content:
+        "";
+
+    height:
+        1px;
+
+    flex:
+        1;
+
+    background:
+        #d9e0e8;
+
+}
+
+
+/* =========================================
+   AUTH FORM
+========================================= */
+
+.auth-form {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        17px;
+
+}
+
+
+/* =========================================
+   NORMAL INPUT
+========================================= */
+
+.auth-form input {
+
+    width:
+        100%;
+
+    padding:
+        18px 20px;
+
+    border:
+        1px solid #d9e0e8;
+
+    border-radius:
+        14px;
+
+    outline:
+        none;
+
+    font-size:
+        16px;
+
+    color:
+        #172033;
+
+    background:
+        white;
+
+    transition:
+        0.3s;
+
+}
+
+
+.auth-form input:focus {
+
+    border-color:
+        #315d8c;
+
+    box-shadow:
+        0 0 0 4px rgba(49, 93, 140, 0.10);
+
+}
+
+
+/* =========================================
+   PASSWORD WRAPPER
+========================================= */
+
+.password-wrapper {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+}
+
+
+/* =========================================
+   PASSWORD INPUT
+========================================= */
+
+.password-wrapper input {
+
+    width:
+        100%;
+
+    padding:
+        18px 80px 18px 20px;
+
+}
+
+
+/* =========================================
+   SHOW / HIDE BUTTON
+========================================= */
+
+.password-toggle {
+
+    position:
+        absolute;
+
+    right:
+        12px;
+
+    top:
+        50%;
+
+    transform:
+        translateY(-50%);
+
+    width:
+        auto;
+
+    padding:
+        7px 10px;
+
+    border:
+        none;
+
+    background:
+        transparent;
+
+    color:
+        #315d8c;
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    z-index:
+        2;
+
+    transition:
+        0.3s;
+
+}
+
+
+.password-toggle:hover {
+
+    color:
+        #1e3a5f;
+
+    background:
+        rgba(49, 93, 140, 0.08);
+
+    border-radius:
+        8px;
+
+}
+
+
+.password-toggle:focus {
+
+    outline:
+        none;
+
+}
+
+
+/* =========================================
+   SUBMIT BUTTON
+========================================= */
+
+.auth-submit {
+
+    width:
+        100%;
+
+    margin-top:
+        5px;
+
+    padding:
+        18px;
+
+    border:
+        none;
+
+    border-radius:
+        14px;
+
+    background:
+        #1e3a5f;
+
+    color:
+        white;
+
+    font-size:
+        18px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    transition:
+        0.3s;
+
+}
+
+
+.auth-submit:hover {
+
+    background:
+        #10263f;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(30, 58, 95, 0.25);
+
+}
+
+
+.auth-submit:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+/* =========================================
+   HIDDEN FORM
+========================================= */
+
+.hidden {
+
+    display:
+        none;
+
+}
+
+
+/* =========================================
+   AUTH MESSAGE
+========================================= */
+
+.auth-message {
+
+    text-align:
+        center;
+
+    font-size:
+        14px;
+
+    min-height:
+        20px;
+
+    margin:
+        0;
+
+    font-weight:
+        600;
+
+}
+
+
+/* =========================================
+   MOBILE RESPONSIVE
+========================================= */
+
+@media (max-width: 600px) {
+
+
+    .auth-navbar {
+
+        padding:
+            18px 25px;
+
+    }
+
+
+    .auth-brand {
+
+        font-size:
+            23px;
+
+    }
+
+
+    .auth-logo {
+
+        width:
+            45px;
+
+        height:
+            45px;
+
+    }
+
+
+    .auth-close {
+
+        width:
+            42px;
+
+        height:
+            42px;
+
+        font-size:
+            28px;
+
+    }
+
+
+    .auth-wrapper {
+
+        padding:
+            20px 15px 50px;
+
+    }
+
+
+    .auth-card {
+
+        padding:
+            35px 25px;
+
+        border-radius:
+            25px;
+
+    }
+
+
+    .auth-header h1 {
+
+        font-size:
+            40px;
+
+    }
+
+
+    .auth-header span {
+
+        letter-spacing:
+            3px;
+
+        font-size:
+            10px;
+
+    }
+
+
+    .auth-header p {
+
+        font-size:
+            15px;
+
+    }
+
+
+    .auth-form input {
+
+        padding:
+            16px 17px;
+
+    }
+
+
+    .password-wrapper input {
+
+        padding:
+            16px 70px 16px 17px;
+
+    }
+
+
+    .auth-submit {
+
+        padding:
+            16px;
+
+    }
+
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Settings | Raj Library</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/site-header.css" />
+    <link rel="stylesheet" href="css/site-theme.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            color: #1e3a5f;
+        }
+        .page-shell {
+            width: calc(100% - 32px);
+            max-width: 760px;
+            margin: 40px auto;
+        }
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(30, 58, 95, 0.08);
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .settings-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px 20px;
+        }
+        .field {
+            display: grid;
+            align-content: start;
+            gap: 8px;
+            min-width: 0;
+        }
+        label {
+            font-weight: 600;
+            color: #334155;
+        }
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #dbe3ef;
+            border-radius: 10px;
+            font: inherit;
+            box-sizing: border-box;
+        }
+        .field input[readonly] {
+            background: #f5f7fb;
+            color: #64748b;
+            cursor: default;
+        }
+        .field-wide,
+        .actions,
+        .status {
+            grid-column: 1 / -1;
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #1e3a5f;
+            color: #fff;
+            text-align: center;
+        }
+        .btn.secondary {
+            background: #eef2f6;
+            color: #1e3a5f;
+        }
+        .status {
+            min-height: 24px;
+            font-size: 0.95rem;
+            color: #0f766e;
+            margin: 0;
+        }
+        @media (max-width: 600px) {
+            .page-shell {
+                width: calc(100% - 24px);
+                max-width: 480px;
+                margin: 24px auto;
+            }
+            .card {
+                padding: 20px 16px;
+            }
+            .header-row {
+                align-items: flex-start;
+                margin-bottom: 20px;
+            }
+            .settings-form {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 16px;
+            }
+            .field-wide,
+            .actions,
+            .status {
+                grid-column: auto;
+            }
+            .actions {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+            .actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <div class="card">
+            <div class="header-row">
+                <div>
+                    <span class="section-label">ACCOUNT</span>
+                    <h2>Account Settings</h2>
+                </div>
+                <a href="user-dashboard.html" class="btn secondary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Dashboard</a>
+            </div>
+            <form id="settingsForm" class="settings-form">
+                <div class="field">
+                    <label for="fullName">Full name</label>
+                    <input id="fullName" name="fullName" type="text" placeholder="Your full name" />
+                </div>
+                <div class="field">
+                    <label for="settingsEmail">Email</label>
+                    <input id="settingsEmail" name="email" type="email" readonly aria-readonly="true" />
+                </div>
+                <div class="field">
+                    <label for="mobile">Mobile number</label>
+                    <input id="mobile" name="mobile" type="tel" inputmode="numeric" placeholder="Your mobile number" />
+                </div>
+                <div class="actions">
+                    <button type="submit" class="btn">Save Settings</button>
+                    <a href="profile.html" class="btn secondary">View profile</a>
+                </div>
+                <div id="settingsStatus" class="status" role="status" aria-live="polite"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/site-header.js"></script>
+    <script src="js/public.js"></script>
+    <script src="js/form-validation.js"></script>
+    <script>
+        const settingsForm = document.getElementById('settingsForm');
+        const settingsStatus = document.getElementById('settingsStatus');
+
+        async function loadSettingsData() {
+            settingsStatus.textContent = 'Loading account settings...';
+            try {
+                const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+                if (authError || !user) {
+                    window.location.href = 'user-login.html';
+                    return;
+                }
+
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                const fullName = document.getElementById('fullName');
+                const email = document.getElementById('settingsEmail');
+                const mobile = document.getElementById('mobile');
+
+                fullName.value = profile?.name || user.user_metadata?.name || user.user_metadata?.full_name || '';
+                email.value = user.email || '';
+                mobile.value = profile?.mobile || user.user_metadata?.mobile || user.user_metadata?.phone || '';
+                settingsStatus.textContent = '';
+            } catch (error) {
+                console.error('Settings load failed:', error);
+                settingsStatus.textContent = 'Unable to load your settings.';
+            }
+        }
+
+        settingsForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const nameInput = document.getElementById('fullName');
+            const mobileInput = document.getElementById('mobile');
+            const name = window.RajLibraryValidation.normalizeName(nameInput.value);
+            const mobile = mobileInput.value;
+
+            if (name && !window.RajLibraryValidation.isValidName(name)) {
+                settingsStatus.textContent = window.RajLibraryValidation?.ERRORS?.NAME || 'Name can contain only letters and spaces.';
+                settingsStatus.style.color = '#b91c1c';
+                return;
+            }
+
+            if (mobile && !window.RajLibraryValidation.isValidMobile(mobile)) {
+                settingsStatus.textContent = window.RajLibraryValidation?.ERRORS?.MOBILE || 'Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.';
+                settingsStatus.style.color = '#b91c1c';
+                return;
+            }
+
+            nameInput.value = name;
+            settingsStatus.textContent = 'Saving...';
+            try {
+                const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+                if (authError || !user) {
+                    window.location.href = 'user-login.html';
+                    return;
+                }
+
+                if (!user.email || !window.RajLibraryValidation.isValidEmail(user.email)) {
+                    settingsStatus.textContent = window.RajLibraryValidation?.ERRORS?.EMAIL || 'Enter a valid email address.';
+                    settingsStatus.style.color = '#b91c1c';
+                    return;
+                }
+
+                const updates = {
+                    id: user.id,
+                    email: user.email,
+                    name: name || null,
+                    mobile: mobile || null,
+                    updated_at: new Date().toISOString()
+                };
+
+                const { error } = await supabaseClient.from('profiles').upsert(updates, { onConflict: 'id' });
+                if (error) throw error;
+
+                settingsStatus.textContent = 'Account settings saved successfully.';
+                settingsStatus.style.color = '#0f766e';
+            } catch (error) {
+                console.error('Settings save failed:', error);
+                settingsStatus.textContent = 'Failed to save settings. Please try again.';
+                settingsStatus.style.color = '#b91c1c';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadSettingsData);
+    </script>
+</body>
+</html>

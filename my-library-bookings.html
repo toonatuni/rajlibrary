@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Library Bookings | Raj Library</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/site-header.css" />
+    <link rel="stylesheet" href="css/site-theme.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            color: #1e3a5f;
+        }
+        .page-shell {
+            max-width: 980px;
+            margin: 28px auto;
+            padding: 18px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(30, 58, 95, 0.08);
+        }
+        .list {
+            display: grid;
+            gap: 10px;
+        }
+        .booking-item {
+            border: 1px solid #e5edf7;
+            border-radius: 12px;
+            padding: 14px;
+            background: #f9fbff;
+        }
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .status {
+            background: #eaf6f0;
+            color: #0f766e;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+        .muted {
+            color: #64748b;
+        }
+        .btn {
+            display: inline-flex;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            background: #1e3a5f;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <div class="card">
+            <div class="top-row">
+                <div>
+                    <span class="section-label">BOOKINGS</span>
+                    <h2>My Library Bookings</h2>
+                </div>
+                <a href="user-dashboard.html" class="btn">Back to Dashboard</a>
+            </div>
+            <div id="bookingList" class="list">Loading bookings...</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/site-header.js"></script>
+    <script src="js/public.js"></script>
+    <script>
+        async function loadLibraryBookings() {
+            const container = document.getElementById('bookingList');
+            try {
+                const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+                if (authError || !user) {
+                    window.location.href = 'user-login.html';
+                    return;
+                }
+
+                const { data: bookings, error } = await supabaseClient
+                    .from('bookings')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('booking_type', 'library')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                if (!bookings || bookings.length === 0) {
+                    container.innerHTML = '<p class="muted">No library bookings yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = bookings.map(booking => {
+                    const status = (booking.status || 'pending').toString();
+                    const shiftName = booking.shift_name || booking.notes || 'Library session';
+                    const bookingDate = booking.booking_date || booking.start_date || booking.created_at;
+                    return `
+                        <div class="booking-item">
+                            <div class="top-row">
+                                <strong>${shiftName}</strong>
+                                <span class="status">${status}</span>
+                            </div>
+                            <div class="muted">Date: ${new Date(bookingDate).toLocaleDateString('en-IN')}</div>
+                            <div class="muted">Amount: ₹${Number(booking.amount || 0).toLocaleString('en-IN')}</div>
+                            <div class="muted">Booking ID: ${booking.id}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Library bookings load error:', error);
+                container.innerHTML = '<p class="muted">Unable to load your bookings right now.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadLibraryBookings);
+    </script>
+</body>
+</html>

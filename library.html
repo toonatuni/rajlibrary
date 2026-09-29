@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Library | Raj Library
+    </title>
+
+
+    <!-- MAIN CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+
+    <!-- LIBRARY CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/library.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-header.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-theme.css"
+    >
+
+</head>
+
+
+<body class="library-page">
+
+
+<!-- =========================================
+     SIDEBAR OVERLAY
+========================================= -->
+
+<div
+    class="menu-overlay"
+    id="menuOverlay"
+></div>
+
+
+
+<!-- =========================================
+     SIDEBAR MENU
+     SAME AS INDEX.HTML
+========================================= -->
+
+<aside
+    class="side-menu"
+    id="sideMenu"
+>
+
+
+    <div class="side-menu-header">
+
+
+        <div>
+
+
+            <h2>
+                Raj Library
+            </h2>
+
+
+            <p>
+                Library & Room Management
+            </p>
+
+
+        </div>
+
+
+        <button
+            class="menu-close"
+            id="closeMenu"
+            type="button"
+        >
+            ×
+        </button>
+
+
+    </div>
+    <nav class="side-nav">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="library.html">
+            Library
+        </a>
+
+        <a href="rooms.html">
+            Rooms
+        </a>
+
+        <a href="#about">
+            About
+        </a>
+
+        <a href="#contact">
+            Contact
+        </a>
+
+        <a href="#location">
+            Location
+        </a>
+
+    </nav>
+
+
+
+
+    <div class="theme-section">
+
+
+        <span>
+            Dark Theme
+        </span>
+
+
+        <label class="theme-switch">
+
+
+            <input
+                type="checkbox"
+                id="themeToggle"
+            >
+
+
+            <span class="theme-slider"></span>
+
+
+        </label>
+
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================================
+     MAIN NAVBAR
+     SAME AS INDEX.HTML
+========================================= -->
+
+<header class="main-navbar site-header">
+
+
+    <div class="navbar-left">
+
+
+        <!-- HAMBURGER -->
+
+        <button
+            class="hamburger"
+            id="menuButton"
+            type="button"
+        >
+
+            <span></span>
+
+            <span></span>
+
+            <span></span>
+
+        </button>
+
+
+
+        <!-- RL LOGO -->
+
+        <a
+            href="index.html"
+            class="brand"
+        >
+
+
+            <div class="brand-logo">
+                RL
+            </div>
+
+
+
+            <div class="brand-text">
+
+
+                <h1>
+                    Raj Library
+                </h1>
+
+
+                <p>
+                    Study • Focus • Grow
+                </p>
+
+
+            </div>
+
+
+        </a>
+
+
+    </div>
+
+
+    <!-- AUTH -->
+
+    <div class="navbar-auth">
+
+        <a
+            href="user-login.html"
+            class="signin-btn"
+            id="authButton"
+        >
+            Sign In
+        </a>
+
+        <div
+            class="user-profile hidden"
+            id="userProfile"
+        >
+
+            <button
+                type="button"
+                class="profile-button"
+                id="profileButton"
+            >
+
+                <span
+                    id="userInitials"
+                >
+                    U
+                </span>
+
+            </button>
+
+            <div
+                class="profile-dropdown"
+                id="profileDropdown"
+            >
+
+                <div class="profile-user-info">
+
+                    <div
+                        class="profile-avatar-large"
+                        id="dropdownInitials"
+                    >
+                        U
+                    </div>
+
+                    <div>
+
+                        <strong
+                            id="profileUserName"
+                        >
+                            User
+                        </strong>
+
+                        <p
+                            id="profileUserEmail"
+                        >
+                            user@example.com
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <a href="user-dashboard.html">
+                    My Dashboard
+                </a>
+
+                <a href="profile.html">
+                    My Profile
+                </a>
+
+                <a href="my-library-bookings.html">
+                    My Library Bookings
+                </a>
+
+                <a href="my-room-bookings.html">
+                    My Room Bookings
+                </a>
+
+                <a href="settings.html">
+                    Account Settings
+                </a>
+
+                <button
+                    type="button"
+                    class="profile-logout"
+                    id="profileLogoutButton"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+<div class="site-header-spacer" aria-hidden="true"></div>
+
+
+<!-- =========================================
+     HERO SECTION
+========================================= -->
+
+<section class="library-hero">
+
+
+    <div class="library-hero-content">
+
+
+        <span class="library-label">
+            RAJ LIBRARY STUDY SPACE
+        </span>
+
+
+        <h1>
+
+            Find Your Perfect
+
+            <span>
+                Study Shift.
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            Choose the study shift that matches your
+            daily schedule and enjoy a peaceful
+            environment designed for focused learning
+            and better productivity.
+
+        </p>
+
+
+        <a
+            href="#libraryShifts"
+            class="library-primary-btn"
+        >
+
+            Explore Available Shifts
+
+        </a>
+
+
+    </div>
+
+
+
+    <div class="library-hero-card">
+
+
+        <span class="library-card-label">
+            STUDY WITH FOCUS
+        </span>
+
+
+        <h2>
+
+            Your Seat.
+
+            <br>
+
+            Your Focus.
+
+        </h2>
+
+
+        <p>
+
+            A comfortable and peaceful study
+            environment designed to help you stay
+            productive every day.
+
+        </p>
+
+
+        <div class="library-card-line"></div>
+
+
+
+        <div class="library-stats">
+
+
+            <div>
+
+
+                <strong>
+                    04
+                </strong>
+
+
+                <span>
+                    Study Shifts
+                </span>
+
+
+            </div>
+
+
+
+            <div>
+
+
+                <strong id="totalAvailableSeats">
+                    --
+                </strong>
+
+
+                <span>
+                    Seats Available
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================
+     AVAILABLE SHIFTS
+========================================= -->
+
+<section
+    class="library-shifts-section"
+    id="libraryShifts"
+>
+
+
+    <div class="library-section-heading">
+
+
+        <span class="library-label">
+            AVAILABLE STUDY SHIFTS
+        </span>
+
+
+        <h2>
+            Choose Your Study Schedule.
+        </h2>
+
+
+        <p>
+
+            Check the available shifts and select
+            the schedule that works best for your
+            daily study routine.
+
+        </p>
+
+
+    </div>
+
+
+
+    <div
+        class="library-shifts-grid"
+        id="libraryShiftsList"
+    >
+
+
+        <!-- SHIFT 1 -->
+
+        <article class="library-shift-card">
+
+
+            <div class="shift-card-top">
+
+
+                <span class="shift-number">
+                    01
+                </span>
+
+
+                <span class="shift-status">
+                    Available
+                </span>
+
+
+            </div>
+
+
+            <h3>
+                Morning Shift
+            </h3>
+
+
+            <p class="shift-time">
+                06:00 AM - 10:00 AM
+            </p>
+
+
+            <div class="shift-divider"></div>
+
+
+            <div class="shift-details">
+
+
+                <div>
+
+
+                    <span>
+                        Monthly Fee
+                    </span>
+
+
+                    <strong data-shift-fee="shift1">
+                        ₹500
+                    </strong>
+
+
+                </div>
+
+
+
+                <div>
+
+
+                    <span>
+                        Available Seats
+                    </span>
+
+
+                    <strong
+                        class="available-seat-count"
+                        data-shift="shift1"
+                    >
+                        --
+                    </strong>
+
+
+                </div>
+
+
+            </div>
+
+
+            <button
+                type="button"
+                class="shift-book-btn"
+                onclick="selectShift('shift1', 'Morning Shift', 500)"
+            >
+                Book This Shift
+            </button>
+
+
+        </article>
+
+
+
+        <!-- SHIFT 2 -->
+
+        <article class="library-shift-card">
+
+
+            <div class="shift-card-top">
+
+
+                <span class="shift-number">
+                    02
+                </span>
+
+
+                <span class="shift-status">
+                    Available
+                </span>
+
+
+            </div>
+
+
+            <h3>
+                Day Shift
+            </h3>
+
+
+            <p class="shift-time">
+                10:00 AM - 02:00 PM
+            </p>
+
+
+            <div class="shift-divider"></div>
+
+
+            <div class="shift-details">
+
+
+                <div>
+
+
+                    <span>
+                        Monthly Fee
+                    </span>
+
+
+                    <strong data-shift-fee="shift2">
+                        ₹600
+                    </strong>
+
+
+                </div>
+
+
+
+                <div>
+
+
+                    <span>
+                        Available Seats
+                    </span>
+
+
+                    <strong
+                        class="available-seat-count"
+                        data-shift="shift2"
+                    >
+                        --
+                    </strong>
+
+
+                </div>
+
+
+            </div>
+
+
+            <button
+                type="button"
+                class="shift-book-btn"
+                onclick="selectShift('shift2', 'Day Shift', 600)"
+            >
+                Book This Shift
+            </button>
+
+
+        </article>
+
+
+
+        <!-- SHIFT 3 -->
+
+        <article class="library-shift-card">
+
+
+            <div class="shift-card-top">
+
+
+                <span class="shift-number">
+                    03
+                </span>
+
+
+                <span class="shift-status">
+                    Available
+                </span>
+
+
+            </div>
+
+
+            <h3>
+                Afternoon Shift
+            </h3>
+
+
+            <p class="shift-time">
+                02:00 PM - 06:00 PM
+            </p>
+
+
+            <div class="shift-divider"></div>
+
+
+            <div class="shift-details">
+
+
+                <div>
+
+
+                    <span>
+                        Monthly Fee
+                    </span>
+
+
+                    <strong data-shift-fee="shift3">
+                        ₹700
+                    </strong>
+
+
+                </div>
+
+
+
+                <div>
+
+
+                    <span>
+                        Available Seats
+                    </span>
+
+
+                    <strong
+                        class="available-seat-count"
+                        data-shift="shift3"
+                    >
+                        --
+                    </strong>
+
+
+                </div>
+
+
+            </div>
+
+
+            <button
+                type="button"
+                class="shift-book-btn"
+                onclick="selectShift('shift3', 'Afternoon Shift', 700)"
+            >
+                Book This Shift
+            </button>
+
+
+        </article>
+
+
+
+        <!-- SHIFT 4 -->
+
+        <article class="library-shift-card">
+
+
+            <div class="shift-card-top">
+
+
+                <span class="shift-number">
+                    04
+                </span>
+
+
+                <span class="shift-status">
+                    Available
+                </span>
+
+
+            </div>
+
+
+            <h3>
+                Evening Shift
+            </h3>
+
+
+            <p class="shift-time">
+                06:00 PM - 10:00 PM
+            </p>
+
+
+            <div class="shift-divider"></div>
+
+
+            <div class="shift-details">
+
+
+                <div>
+
+
+                    <span>
+                        Monthly Fee
+                    </span>
+
+
+                    <strong data-shift-fee="shift4">
+                        ₹800
+                    </strong>
+
+
+                </div>
+
+
+
+                <div>
+
+
+                    <span>
+                        Available Seats
+                    </span>
+
+
+                    <strong
+                        class="available-seat-count"
+                        data-shift="shift4"
+                    >
+                        --
+                    </strong>
+
+
+                </div>
+
+
+            </div>
+
+
+            <button
+                type="button"
+                class="shift-book-btn"
+                onclick="selectShift('shift4', 'Evening Shift', 800)"
+            >
+                Book This Shift
+            </button>
+
+
+        </article>
+
+
+    </div>
+
+
+</section>
+
+
+
+<nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+
+    <a href="index.html" class="mobile-bottom-nav-item">
+        <span>Home</span>
+    </a>
+
+    <a href="library.html" class="mobile-bottom-nav-item active">
+        <span>Library</span>
+    </a>
+
+    <a href="rooms.html" class="mobile-bottom-nav-item">
+        <span>Rooms</span>
+    </a>
+
+    <a href="user-dashboard.html" class="mobile-bottom-nav-item">
+        <span>My Bookings</span>
+    </a>
+
+    <a href="profile.html" class="mobile-bottom-nav-item">
+        <span>Profile</span>
+    </a>
+
+</nav>
+
+
+
+<!-- =========================================
+     JAVASCRIPT
+========================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabase.js"></script>
+
+<script src="js/library.js"></script>
+
+<script src="js/site-header.js"></script>
+
+<script src="js/public.js"></script>
+
+</body>
+
+</html>

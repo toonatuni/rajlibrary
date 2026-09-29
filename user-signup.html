@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Sign Up | Raj Library</title>
+
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        :root {
+
+            --primary: #17365d;
+
+            --primary-dark: #0d2542;
+
+            --accent: #c58b35;
+
+            --background: #f4f1eb;
+
+            --card: rgba(255, 255, 255, 0.92);
+
+            --text: #182230;
+
+            --muted: #687385;
+
+            --border: #d9dee6;
+
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eef1f4,
+                    #e8e1d6,
+                    #dce4ea
+                );
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            padding: 25px;
+
+        }
+
+
+        /* =========================
+           MAIN CARD
+        ========================= */
+
+        .auth-wrapper {
+
+            width: 100%;
+
+            max-width: 520px;
+
+        }
+
+
+        .auth-card {
+
+            width: 100%;
+
+            background: var(--card);
+
+            backdrop-filter: blur(15px);
+
+            border: 1px solid rgba(255,255,255,0.8);
+
+            border-radius: 28px;
+
+            padding: 42px 38px;
+
+            box-shadow:
+                0 20px 60px
+                rgba(15, 30, 50, 0.18);
+
+        }
+
+
+        /* =========================
+           BRAND
+        ========================= */
+
+        .brand {
+
+            margin-bottom: 28px;
+
+        }
+
+
+        .brand small {
+
+            color: var(--accent);
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            letter-spacing: 3px;
+
+        }
+
+
+        .brand h1 {
+
+            margin-top: 12px;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size: 42px;
+
+            color: var(--text);
+
+            font-weight: 500;
+
+        }
+
+
+        .brand p {
+
+            margin-top: 12px;
+
+            color: var(--muted);
+
+            font-size: 16px;
+
+            line-height: 1.6;
+
+        }
+
+
+        /* =========================
+           TABS
+        ========================= */
+
+        .auth-tabs {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                1fr;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 16px;
+
+            padding: 5px;
+
+            margin-bottom: 24px;
+
+            gap: 5px;
+
+        }
+
+
+        .tab {
+
+            text-align: center;
+
+            padding: 14px;
+
+            text-decoration: none;
+
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            color: var(--muted);
+
+        }
+
+
+        .tab.active {
+
+            background:
+                var(--primary);
+
+            color: white;
+
+            box-shadow:
+                0 5px 15px
+                rgba(23,54,93,0.25);
+
+        }
+
+
+        /* =========================
+           GOOGLE BUTTON
+        ========================= */
+
+        .google-btn {
+
+            width: 100%;
+
+            padding: 15px;
+
+            background: white;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 15px;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            color: #354052;
+
+            cursor: pointer;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 12px;
+
+            transition: 0.25s;
+
+        }
+
+
+        .google-btn:hover {
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 8px 20px
+                rgba(0,0,0,0.08);
+
+        }
+
+
+        .google-icon {
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* =========================
+           DIVIDER
+        ========================= */
+
+        .divider {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin:
+                26px
+                0;
+
+            color:
+                var(--muted);
+
+        }
+
+
+        .divider::before,
+        .divider::after {
+
+            content: "";
+
+            flex: 1;
+
+            height: 1px;
+
+            background:
+                var(--border);
+
+        }
+
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-group {
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .form-group label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: var(--text);
+
+        }
+
+
+        .input-wrapper {
+
+            position: relative;
+
+        }
+
+
+        input {
+
+            width: 100%;
+
+            padding:
+                16px
+                50px
+                16px
+                17px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 15px;
+
+            background:
+                rgba(255,255,255,0.85);
+
+            outline: none;
+
+            font-size: 16px;
+
+            color: var(--text);
+
+            transition: 0.2s;
+
+        }
+
+
+        input:focus {
+
+            border-color:
+                var(--primary);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(23,54,93,0.1);
+
+        }
+
+
+        /* =========================
+           PASSWORD SHOW BUTTON
+        ========================= */
+
+        .password-toggle {
+
+            position: absolute;
+
+            right: 8px;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%);
+
+            border: none;
+
+            background: transparent;
+
+            color: var(--primary);
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            padding: 8px;
+
+            cursor: pointer;
+
+        }
+
+
+        /* =========================
+           SIGNUP BUTTON
+        ========================= */
+
+        .submit-btn {
+
+            width: 100%;
+
+            padding: 16px;
+
+            margin-top: 5px;
+
+            border: none;
+
+            border-radius: 16px;
+
+            background:
+                var(--primary);
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+
+        }
+
+
+        .submit-btn:hover {
+
+            background:
+                var(--primary-dark);
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 10px 25px
+                rgba(23,54,93,0.25);
+
+        }
+
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        #signupMessage {
+
+            min-height: 20px;
+
+            margin-top: 15px;
+
+            text-align: center;
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+        }
+
+
+        /* =========================
+           LOGIN LINK
+        ========================= */
+
+        .bottom-text {
+
+            margin-top: 25px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 14px;
+
+        }
+
+
+        .bottom-text a {
+
+            color: var(--primary);
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+        }
+
+        body {
+            display: block;
+        }
+
+        .auth-wrapper {
+            margin: 0 auto;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding: 15px;
+
+            }
+
+
+            .auth-card {
+
+                padding:
+                    32px
+                    22px;
+
+                border-radius: 24px;
+
+            }
+
+
+            .brand h1 {
+
+                font-size: 34px;
+
+            }
+
+        }
+
+        .auth-card {
+            padding: 32px 30px;
+            border-radius: 24px;
+        }
+
+        .brand {
+            margin-bottom: 20px;
+        }
+
+        .brand h1 {
+            margin-top: 8px;
+            font-size: 38px;
+        }
+
+        .brand p {
+            margin-top: 8px;
+        }
+
+        .auth-tabs {
+            margin-bottom: 18px;
+        }
+
+        .divider {
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            margin-bottom: 6px;
+        }
+
+        input,
+        .tab,
+        .google-btn,
+        .submit-btn {
+            padding-top: 13px;
+            padding-bottom: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .auth-card {
+                padding: 26px 20px;
+            }
+        }
+
+    </style>
+    <link rel="stylesheet" href="css/site-header.css">
+    <link rel="stylesheet" href="css/site-theme.css">
+
+</head>
+
+
+<body>
+
+
+    <main class="auth-wrapper">
+
+
+        <section class="auth-card">
+
+
+            <!-- BRAND -->
+
+            <div class="brand">
+
+                <small>
+                    RAJ LIBRARY ACCOUNT
+                </small>
+
+
+                <h1>
+                    Join Raj Library.
+                </h1>
+
+
+                <p>
+                    Create an account to manage your
+                    library and room bookings.
+                </p>
+
+            </div>
+
+
+            <!-- SIGN IN / SIGN UP -->
+
+            <div class="auth-tabs">
+
+
+                <a
+                    href="user-login.html"
+                    class="tab"
+                >
+                    Sign In
+                </a>
+
+
+                <a
+                    href="user-signup.html"
+                    class="tab active"
+                >
+                    Sign Up
+                </a>
+
+
+            </div>
+
+
+            <!-- GOOGLE LOGIN -->
+
+            <button
+                type="button"
+                class="google-btn"
+                onclick="googleLogin()"
+            >
+
+                <span class="google-icon">
+                    G
+                </span>
+
+
+                Continue with Google
+
+            </button>
+
+
+            <!-- DIVIDER -->
+
+            <div class="divider">
+
+                <span>
+                    or continue with email
+                </span>
+
+            </div>
+
+
+            <!-- SIGNUP FORM -->
+
+            <form
+                id="userSignupForm"
+            >
+
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label
+                        for="email"
+                    >
+                        Email address
+                    </label>
+
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label
+                        for="password"
+                    >
+                        Password
+                    </label>
+
+
+                    <div
+                        class="input-wrapper"
+                    >
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Minimum 6 characters"
+                            minlength="6"
+                            required
+                        >
+
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword()"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CREATE ACCOUNT -->
+
+                <button
+                    type="submit"
+                    class="submit-btn"
+                >
+
+                    Create Account
+
+                </button>
+
+
+                <div
+                    id="signupMessage"
+                ></div>
+
+
+            </form>
+
+
+            <div class="bottom-text">
+
+                Already have an account?
+
+                <a
+                    href="user-login.html"
+                >
+                    Sign In
+                </a>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+    <!-- SUPABASE CONFIG -->
+
+    <script src="js/supabase.js"></script>
+
+
+    <!-- AUTH SCRIPT -->
+
+    <script src="js/form-validation.js"></script>
+    <script src="js/user-auth.js"></script>
+    <script src="js/site-header.js"></script>
+    <script src="js/public.js"></script>
+
+
+    <!-- PASSWORD SHOW / HIDE -->
+
+    <script>
+
+        function togglePassword() {
+
+            const password =
+                document.getElementById(
+                    "password"
+                );
+
+
+            const button =
+                document.querySelector(
+                    ".password-toggle"
+                );
+
+
+            if (
+                password.type ===
+                "password"
+            ) {
+
+                password.type =
+                    "text";
+
+
+                button.textContent =
+                    "Hide";
+
+            }
+
+            else {
+
+                password.type =
+                    "password";
+
+
+                button.textContent =
+                    "Show";
+
+            }
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

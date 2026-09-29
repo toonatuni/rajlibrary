@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Library Booking | Raj Library</title>
+
+    <!-- MAIN CSS -->
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+    <!-- LIBRARY BOOKING CSS -->
+    <link
+        rel="stylesheet"
+        href="css/library-booking.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-header.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-theme.css"
+    >
+
+</head>
+
+
+<body class="library-booking-page">
+
+
+    <!-- =========================
+         BACKGROUND
+    ========================= -->
+
+    <div class="library-booking-background"></div>
+
+
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <header class="library-booking-navbar">
+
+
+        <!-- LOGO -->
+
+        <a
+            href="library.html"
+            class="library-booking-brand"
+        >
+
+
+            <div class="library-booking-logo">
+
+                RL
+
+            </div>
+
+
+            <div>
+
+                <h2>
+                    Raj Library
+                </h2>
+
+                <span>
+                    Library & Room Management
+                </span>
+
+            </div>
+
+
+        </a>
+
+
+
+        <!-- CLOSE BUTTON -->
+
+        <a
+            href="library.html"
+            class="library-booking-close"
+            title="Back to Library"
+        >
+
+            ×
+
+        </a>
+
+
+    </header>
+
+
+
+    <!-- =========================
+         BOOKING WRAPPER
+    ========================= -->
+
+    <main class="library-booking-wrapper">
+
+
+        <section class="library-booking-card">
+
+
+            <!-- =========================
+                 LEFT SIDE
+            ========================= -->
+
+            <!-- =========================
+                 RIGHT SIDE
+            ========================= -->
+
+            <div class="library-booking-form-side">
+
+
+                <!-- HEADER -->
+
+                <div class="library-booking-form-header">
+
+
+                    <span>
+                        LIBRARY MEMBERSHIP
+                    </span>
+
+
+                    <h2>
+                        Book Your Shift.
+                    </h2>
+
+
+                    <p>
+
+                        Enter your details and select your preferred
+                        library shift.
+
+                    </p>
+
+
+                </div>
+
+
+
+                <!-- =========================
+                     SHIFT DETAILS BOX
+                ========================= -->
+
+                <div class="selected-shift-box">
+
+
+                    <div class="selected-shift-top">
+
+
+                        <span>
+                            SELECTED SHIFT
+                        </span>
+
+
+                        <div
+                            id="selectedShiftStatus"
+                            class="shift-available-status"
+                        >
+
+                            Select Shift
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="selected-shift-details">
+
+
+                        <div>
+
+
+                            <span>
+                                Shift
+                            </span>
+
+
+                            <strong
+                                id="selectedShiftName"
+                            >
+
+                                -
+
+                            </strong>
+
+
+                        </div>
+
+
+
+                        <div>
+
+
+                            <span>
+                                Timing
+                            </span>
+
+
+                            <strong
+                                id="selectedShiftTiming"
+                            >
+
+                                -
+
+                            </strong>
+
+
+                        </div>
+
+
+
+                        <div>
+
+
+                            <span>
+                                Monthly Fee
+                            </span>
+
+
+                            <strong
+                                id="selectedShiftFee"
+                            >
+
+                                ₹0
+
+                            </strong>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- =========================
+                     BOOKING FORM
+                ========================= -->
+
+                <form
+                    id="libraryBookingForm"
+                    class="modern-library-booking-form"
+                >
+
+
+                    <!-- NAME -->
+
+                    <div class="library-input-group">
+
+
+                        <label
+                            for="libraryUserName"
+                        >
+
+                            Your Name
+
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="libraryUserName"
+                            placeholder="Enter your name"
+                            required
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- MOBILE -->
+
+                    <div class="library-input-group">
+
+
+                        <label
+                            for="libraryMobile"
+                        >
+
+                            Mobile Number
+
+                        </label>
+
+
+                        <input
+                            type="tel"
+                            id="libraryMobile"
+                            placeholder="Enter mobile number"
+                            inputmode="numeric"
+                            required
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- SHIFT SELECT -->
+
+                    <div class="library-input-group">
+
+
+                        <label
+                            for="libraryShift"
+                        >
+
+                            Select Shift
+
+                        </label>
+
+
+                        <select
+                            id="libraryShift"
+                            required
+                        >
+
+                            <option value="">
+
+                                Select your preferred shift
+
+                            </option>
+
+
+                            <option value="shift1">
+
+                                Shift 1 — 06:00 AM to 10:00 AM
+
+                            </option>
+
+
+                            <option value="shift2">
+
+                                Shift 2 — 10:00 AM to 02:00 PM
+
+                            </option>
+
+
+                            <option value="shift3">
+
+                                Shift 3 — 02:00 PM to 06:00 PM
+
+                            </option>
+
+
+                            <option value="shift4">
+
+                                Shift 4 — 06:00 PM to 10:00 PM
+
+                            </option>
+
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- START DATE -->
+
+                    <div class="library-input-group">
+
+
+                        <label
+                            for="libraryStartDate"
+                        >
+
+                            Membership Start Date
+
+                        </label>
+
+
+                        <input
+                            type="date"
+                            id="libraryStartDate"
+                            required
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- TOTAL -->
+
+                    <div class="library-total-box">
+
+
+                        <span>
+                            Monthly Membership Fee
+
+                        </span>
+
+
+                        <strong
+                            id="libraryTotalAmount"
+                        >
+
+                            ₹0
+
+                        </strong>
+
+
+                    </div>
+
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        id="confirmLibraryBooking"
+                        class="confirm-library-booking-btn"
+                    >
+
+                        Confirm Library Booking
+
+                    </button>
+
+
+
+                    <!-- MESSAGE -->
+
+                    <p
+                        id="libraryBookingMessage"
+                        class="library-booking-message"
+                    ></p>
+
+
+                </form>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+
+        <a href="index.html" class="mobile-bottom-nav-item">
+            <span>Home</span>
+        </a>
+
+        <a href="library.html" class="mobile-bottom-nav-item active">
+            <span>Library</span>
+        </a>
+
+        <a href="rooms.html" class="mobile-bottom-nav-item">
+            <span>Rooms</span>
+        </a>
+
+        <a href="user-dashboard.html" class="mobile-bottom-nav-item">
+            <span>My Bookings</span>
+        </a>
+
+        <a href="profile.html" class="mobile-bottom-nav-item">
+            <span>Profile</span>
+        </a>
+
+    </nav>
+
+
+
+        <!-- =========================
+             JAVASCRIPT
+    ========================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/form-validation.js"></script>
+    <script src="js/library-booking.js"></script>
+    <script src="js/site-header.js"></script>
+    <script src="js/public.js"></script>
+
+
+</body>
+
+</html>

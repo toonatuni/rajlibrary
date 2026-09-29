@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Rooms | Raj Library
+    </title>
+
+
+    <!-- =========================
+         MAIN CSS
+    ========================= -->
+
+    <link
+        rel="stylesheet"
+        href="css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/rooms.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-header.css"
+    >
+    <link
+        rel="stylesheet"
+        href="css/site-theme.css"
+    >
+
+</head>
+
+
+<body class="rooms-page">
+
+
+<!-- =========================
+     SIDEBAR OVERLAY
+========================= -->
+
+<div
+    class="menu-overlay"
+    id="menuOverlay"
+></div>
+
+
+
+<!-- =========================
+     SIDEBAR MENU
+========================= -->
+
+<aside
+    class="side-menu"
+    id="sideMenu"
+>
+
+
+    <div class="side-menu-header">
+
+
+        <div>
+
+
+            <h2>
+                Raj Library
+            </h2>
+
+
+            <p>
+                Library & Room Management
+            </p>
+
+
+        </div>
+
+
+        <button
+            class="menu-close"
+            id="closeMenu"
+            type="button"
+        >
+            ×
+        </button>
+
+
+    </div>
+
+
+
+    <!-- =========================
+         SIDEBAR NAVIGATION
+    ========================= -->
+
+    <nav class="side-nav">
+
+
+        <a href="index.html">
+
+            Home
+
+        </a>
+
+
+        <a href="library.html">
+
+            Library
+
+        </a>
+
+
+        <a
+            href="rooms.html"
+            class="active"
+        >
+
+            Rooms
+
+        </a>
+
+
+        <a href="index.html#about">
+
+            About
+
+        </a>
+
+
+        <a href="index.html#contact">
+
+            Contact
+
+        </a>
+
+
+        <a href="index.html#location">
+
+            Location
+
+        </a>
+
+
+    </nav>
+
+
+
+    <!-- =========================
+         DARK MODE
+    ========================= -->
+
+    <div class="theme-section">
+
+
+        <span>
+            Dark Theme
+        </span>
+
+
+        <label class="theme-switch">
+
+
+            <input
+                type="checkbox"
+                id="themeToggle"
+            >
+
+
+            <span class="theme-slider"></span>
+
+
+        </label>
+
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================
+     MAIN NAVBAR
+========================= -->
+
+<header class="main-navbar site-header">
+
+
+    <div class="navbar-left">
+
+
+        <!-- THREE LINE MENU -->
+
+        <button
+            class="hamburger"
+            id="menuButton"
+            type="button"
+        >
+
+            <span></span>
+
+            <span></span>
+
+            <span></span>
+
+        </button>
+
+
+
+        <!-- RL LOGO -->
+
+        <a
+            href="index.html"
+            class="brand"
+        >
+
+
+            <div class="brand-logo">
+
+                RL
+
+            </div>
+
+
+
+            <div class="brand-text">
+
+
+                <h1>
+
+                    Raj Library
+
+                </h1>
+
+
+                <p>
+
+                    Study • Focus • Grow
+
+                </p>
+
+
+            </div>
+
+
+        </a>
+
+
+    </div>
+
+    <!-- =========================
+         AUTH
+    ========================= -->
+
+    <div class="navbar-auth">
+
+        <a
+            href="user-login.html"
+            class="signin-btn"
+            id="authButton"
+        >
+
+            Sign In
+
+        </a>
+
+        <div
+            class="user-profile hidden"
+            id="userProfile"
+        >
+
+            <button
+                type="button"
+                class="profile-button"
+                id="profileButton"
+            >
+
+                <span
+                    id="userInitials"
+                >
+                    U
+                </span>
+
+            </button>
+
+            <div
+                class="profile-dropdown"
+                id="profileDropdown"
+            >
+
+                <div class="profile-user-info">
+
+                    <div
+                        class="profile-avatar-large"
+                        id="dropdownInitials"
+                    >
+                        U
+                    </div>
+
+                    <div>
+
+                        <strong
+                            id="profileUserName"
+                        >
+                            User
+                        </strong>
+
+                        <p
+                            id="profileUserEmail"
+                        >
+                            user@example.com
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <a href="user-dashboard.html">
+                    My Dashboard
+                </a>
+
+                <button
+                    type="button"
+                    class="profile-logout"
+                    id="profileLogoutButton"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+<div class="site-header-spacer" aria-hidden="true"></div>
+
+
+<!-- =========================
+     AVAILABLE ROOM SECTION
+========================= -->
+
+<section
+    class="services-section"
+    id="availableRooms"
+>
+
+
+    <!-- SECTION HEADING -->
+
+    <div class="section-heading">
+
+        <h2>
+
+            Available Rooms
+
+        </h2>
+
+
+
+        <p>
+
+            Select the room that best matches your
+            study requirements and book your personal
+            study space.
+
+        </p>
+
+
+    </div>
+
+
+
+    <!-- =========================
+         ROOM GRID
+    ========================= -->
+
+    <div class="single-room-wrapper">
+
+        <div class="rooms-grid" id="roomsContainer">
+            <p>Loading rooms...</p>
+        </div>
+
+    </div>
+
+
+</section>
+
+<nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+
+    <a href="index.html" class="mobile-bottom-nav-item">
+        <span>Home</span>
+    </a>
+
+    <a href="library.html" class="mobile-bottom-nav-item">
+        <span>Library</span>
+    </a>
+
+    <a href="rooms.html" class="mobile-bottom-nav-item active">
+        <span>Rooms</span>
+    </a>
+
+    <a href="user-dashboard.html" class="mobile-bottom-nav-item">
+        <span>My Bookings</span>
+    </a>
+
+    <a href="profile.html" class="mobile-bottom-nav-item">
+        <span>Profile</span>
+    </a>
+
+</nav>
+
+
+
+<!-- =========================
+     SUPABASE
+========================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="js/supabase.js"></script>
+
+
+
+<!-- =========================
+     MAIN PUBLIC JAVASCRIPT
+========================= -->
+
+<script src="js/site-header.js"></script>
+
+<script src="js/public.js"></script>
+<script src="js/rooms.js"></script>
+
+
+</body>
+
+</html>

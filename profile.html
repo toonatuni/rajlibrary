@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile | Raj Library</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/site-header.css" />
+    <link rel="stylesheet" href="css/site-theme.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            color: #1e3a5f;
+        }
+        .page-shell {
+            max-width: 760px;
+            margin: 28px auto;
+            padding: 18px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(30, 58, 95, 0.08);
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .profile-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1e3a5f;
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .label {
+            color: #64748b;
+            font-weight: 600;
+        }
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            color: #fff;
+            background: #1e3a5f;
+            border: none;
+            cursor: pointer;
+        }
+        .btn.secondary {
+            background: #eef2f6;
+            color: #1e3a5f;
+        }
+        @media (max-width: 640px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <div class="card">
+            <div class="header-row">
+                <div>
+                    <span class="section-label">ACCOUNT</span>
+                    <h2>My Profile</h2>
+                </div>
+                <div class="profile-badge" id="profileInitials">U</div>
+            </div>
+            <div id="profileContent">Loading profile...</div>
+            <div class="actions">
+                <a href="user-dashboard.html" class="btn">Back to Dashboard</a>
+                <a href="settings.html" class="btn secondary">Account Settings</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/site-header.js"></script>
+    <script src="js/public.js"></script>
+    <script>
+        async function loadProfilePage() {
+            const profileContent = document.getElementById('profileContent');
+            const initialsNode = document.getElementById('profileInitials');
+            try {
+                const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+                if (userError || !user) {
+                    window.location.href = 'user-login.html';
+                    return;
+                }
+
+                const name = user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+                const initials = name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'U';
+                if (initialsNode) initialsNode.textContent = initials;
+
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                const userName = profile?.name || name;
+                const userEmail = profile?.email || user.email || 'Not provided';
+                const userMobile = profile?.mobile || user.user_metadata?.mobile || user.user_metadata?.phone || 'Not provided';
+
+                profileContent.innerHTML = `
+                    <div class="row"><div class="label">Name</div><div>${userName}</div></div>
+                    <div class="row"><div class="label">Email</div><div>${userEmail}</div></div>
+                    <div class="row"><div class="label">Mobile</div><div>${userMobile}</div></div>
+                    <div class="row"><div class="label">Role</div><div>${profile?.role || 'user'}</div></div>
+                `;
+            } catch (error) {
+                console.error('Profile page error:', error);
+                profileContent.textContent = 'Unable to load your profile right now.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProfilePage);
+    </script>
+</body>
+</html>
