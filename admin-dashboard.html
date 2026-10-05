@@ -48,6 +48,10 @@
                 <span>Room Bookings</span>
             </button>
 
+            <button class="admin-nav-item" data-section="library">
+                <span>Library</span>
+            </button>
+
             <button class="admin-nav-item" data-section="rooms">
                 <span>Rooms</span>
             </button>
@@ -63,6 +67,18 @@
             <button class="admin-nav-item" data-section="profile">
                 <span>Profile</span>
             </button>
+
+            <a class="admin-home-link" href="index.html#about">
+                <span>About</span>
+            </a>
+
+            <a class="admin-home-link" href="index.html#contact">
+                <span>Contact</span>
+            </a>
+
+            <a class="admin-home-link" href="index.html#location">
+                <span>Location</span>
+            </a>
 
         </nav>
 
@@ -132,9 +148,12 @@
 
                 </div>
 
-                <button id="notificationButton" class="notification-button">
-                    <span class="notification-icon" aria-hidden="true"></span>
-                    <span class="notification-count">3</span>
+                <button id="notificationButton" class="notification-button" type="button" aria-label="Notifications">
+                    <svg class="notification-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                        <path d="M10 21h4"></path>
+                    </svg>
+                    <span class="notification-count" aria-hidden="true" style="display:none"></span>
                 </button>
 
                 <div class="admin-profile-wrapper">
@@ -178,28 +197,7 @@
             </div>
 
             <!-- Notification Dropdown -->
-            <div id="notificationPanel" class="notification-panel">
-
-                <div class="notification-panel-header">
-                    <strong>Notifications</strong>
-                    <span>3</span>
-                </div>
-
-                <div class="notification-item">
-                    <strong>New booking</strong>
-                    <span>A new library booking was added.</span>
-                </div>
-
-                <div class="notification-item">
-                    <strong>Room activity</strong>
-                    <span>Room booking activity is available.</span>
-                </div>
-
-                <div class="notification-item">
-                    <strong>System status</strong>
-                    <span>Admin dashboard is running normally.</span>
-                </div>
-
+            <div id="notificationPanel" class="notification-panel" aria-live="polite">
             </div>
 
         </header>
@@ -712,6 +710,41 @@
             </section>
 
 
+            <!-- ================= LIBRARY INVENTORY ================= -->
+            <section id="librarySection" class="admin-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Library</h2>
+                        <p>Manage library seat shifts and availability</p>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Seat ID</th>
+                                    <th>Shift</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="librarySeatsTable">
+                                <tr>
+                                    <td colspan="4" class="empty-table">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </section>
+
+
             <!-- ================= ROOMS ================= -->
             <section id="roomsSection" class="admin-section">
 
@@ -865,6 +898,63 @@
                                 <span style="color:#6b7280;">Loading rooms...</span>
                             </div>
                             <button type="submit" style="padding:8px 14px; border:none; border-radius:8px; background:#1e3a5f; color:#fff; cursor:pointer; font-weight:700;">Save Room Rents</button>
+                        </form>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <strong>Total Seats and Rooms</strong>
+                            <p id="inventorySettingsMessage">Save seat totals to add or safely remove inventory. Room totals reflect saved room records; add or edit rooms in the Rooms section.</p>
+                        </div>
+                        <form id="capacitySettingsForm" style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">
+                            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                                Total Seats
+                                <input id="settingTotalSeats" name="total_seats" type="number" min="0" step="1" required placeholder="Loading..." style="width:120px; padding:8px 10px; border:1px solid #d9e0e8; border-radius:8px;">
+                            </label>
+                            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                                Total Rooms
+                                <input id="settingTotalRooms" type="number" readonly aria-readonly="true" placeholder="Loading..." style="width:120px; padding:8px 10px; border:1px solid #d9e0e8; border-radius:8px;">
+                            </label>
+                            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                                Shift for added seats
+                                <select name="new_seat_shift" required style="padding:8px 10px; border:1px solid #d9e0e8; border-radius:8px;">
+                                    <option value="">Choose shift</option>
+                                    <option value="shift1">Morning Shift</option>
+                                    <option value="shift2">Day Shift</option>
+                                    <option value="shift3">Afternoon Shift</option>
+                                    <option value="shift4">Evening Shift</option>
+                                </select>
+                            </label>
+                            <button type="submit" style="padding:8px 14px; border:none; border-radius:8px; background:#1e3a5f; color:#fff; cursor:pointer; font-weight:700;">Save Seat Total</button>
+                            <button type="button" data-open-section="rooms" style="padding:8px 14px; border:1px solid #d9e0e8; border-radius:8px; background:#fff; color:#1e3a5f; cursor:pointer; font-weight:700;">Manage Rooms</button>
+                            <p id="capacitySettingsMessage" role="status" aria-live="polite" style="flex-basis:100%;"></p>
+                        </form>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <strong>Library Operations</strong>
+                            <p>Set library status, booking availability and public contact details.</p>
+                        </div>
+                        <form id="librarySettingsForm" style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">
+                            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                                Library Status
+                                <select id="settingLibraryOpen" name="library_open" required style="padding:8px 10px; border:1px solid #d9e0e8; border-radius:8px;">
+                                    <option value="">Select status</option>
+                                    <option value="open">Open</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </label>
+                            <label style="display:flex; gap:8px; align-items:center; color:#1e3a5f; font-weight:600;">
+                                <input id="settingBookingEnabled" name="booking_enabled" type="checkbox">
+                                Booking Enabled
+                            </label>
+                            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                                Contact Number
+                                <input id="settingContactNumber" name="contact_number" type="tel" maxlength="20" required style="width:180px; padding:8px 10px; border:1px solid #d9e0e8; border-radius:8px;">
+                            </label>
+                            <button type="submit" style="padding:8px 14px; border:none; border-radius:8px; background:#1e3a5f; color:#fff; cursor:pointer; font-weight:700;">Save Library Settings</button>
+                            <p id="librarySettingsMessage" role="status" aria-live="polite" style="flex-basis:100%;"></p>
                         </form>
                     </div>
 

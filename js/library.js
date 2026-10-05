@@ -80,7 +80,7 @@ async function loadLibraryPrices() {
    SELECT SHIFT
 ========================================= */
 
-function selectShift(
+async function selectShift(
     shiftId,
     shiftName,
     shiftTimeOrFee,
@@ -129,10 +129,34 @@ function selectShift(
     );
 
 
-    /* Redirect to booking page */
+    try {
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getUser();
 
-    window.location.href =
-        "library-booking.html";
+        const isMissingSession =
+            error &&
+            /AuthSessionMissingError|Auth session missing/i.test(
+                (error.name || "") + " " + (error.message || "")
+            );
+
+        if (error && !isMissingSession) {
+            throw error;
+        }
+
+        if (!data?.user) {
+            sessionStorage.setItem("pendingLibraryBookingShift", shiftId);
+            window.location.href = "user-login.html";
+            return;
+        }
+
+        sessionStorage.removeItem("pendingLibraryBookingShift");
+        window.location.href = "library-booking.html";
+    } catch (error) {
+        console.error("Library booking authentication check failed:", error);
+        alert("Unable to verify your login. Please try again.");
+    }
 
 }
 

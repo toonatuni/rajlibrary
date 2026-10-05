@@ -418,14 +418,14 @@
 
         <article class="quick-info-card">
             <span class="quick-info-label">LIBRARY SEATS</span>
-            <strong id="quickAvailableSeats">—</strong>
-            <p>Seats currently available</p>
+            <strong id="quickAvailableSeats">Loading…</strong>
+            <p id="quickAvailableSeatsCaption">Available / total seats</p>
         </article>
 
         <article class="quick-info-card">
             <span class="quick-info-label">STUDY ROOMS</span>
-            <strong id="quickAvailableRooms">—</strong>
-            <p>Rooms currently available</p>
+            <strong id="quickAvailableRooms">Loading…</strong>
+            <p id="quickAvailableRoomsCaption">Available / total rooms</p>
         </article>
 
     </div>
@@ -733,6 +733,12 @@
         </span>
 
         <h2>
+            <span class="location-heading-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                    <circle cx="12" cy="10" r="2.5"></circle>
+                </svg>
+            </span>
             Find Raj Library
         </h2>
 
@@ -748,15 +754,21 @@
     <div class="map-container">
 
         <iframe
-            src="https://www.google.com/maps?q=Raj%20Library&z=18&output=embed"
+            src="https://www.google.com/maps?q=25.8559739%2C85.7676246&z=17&output=embed"
             width="100%"
             height="450"
             style="border:0;"
-            allowfullscreen=""
+            allowfullscreen
             loading="lazy"
             title="Raj Library Location"
+            referrerpolicy="no-referrer-when-downgrade"
         >
         </iframe>
+
+        <div class="map-location-label" aria-label="Raj Library — Study, Focus, Grow">
+            <strong>Raj Library</strong>
+            <span>Study • Focus • Grow</span>
+        </div>
 
     </div>
 
@@ -772,7 +784,12 @@
             class="open-map-button"
         >
 
-            Open Exact Location in Google Maps
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M14 4h6v6"></path>
+                <path d="M20 4 11 13"></path>
+                <path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"></path>
+            </svg>
+            Open Exact Location
 
         </a>
 
@@ -811,10 +828,13 @@
 
     <div class="contact-details">
 
-        <p>
-            Phone: +91 9900000000
-        </p>
+        <p id="homeContactNumber">Phone: —</p>
 
+        <p id="homeLibraryHours">Opening hours: —</p>
+
+        <p id="homeLibraryStatus">Library status: —</p>
+
+        <p id="homeLibraryAddress">Address: —</p>
 
         <p>
             Email: rajlibrary@example.com

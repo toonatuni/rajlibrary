@@ -115,6 +115,13 @@ document.addEventListener(
                 "authButton"
             );
 
+        const adminDashboardButton =
+            document.getElementById(
+                "adminDashboardButton"
+            );
+
+        let authRenderVersion = 0;
+
 
         const userProfile =
             document.getElementById(
@@ -193,156 +200,253 @@ document.addEventListener(
         // ==========================================
 
         async function loadAvailability() {
-
-            const quickSeats =
-                document.getElementById(
-                    "quickAvailableSeats"
-                );
-
-            const quickRooms =
-                document.getElementById(
-                    "quickAvailableRooms"
-                );
-
-            const seatsTotal =
-                document.getElementById(
-                    "availableSeatsTotal"
-                );
-
-            const seatsPreview =
-                document.getElementById(
-                    "availableSeatsPreview"
-                );
-
-            const roomsTotal =
-                document.getElementById(
-                    "availableRoomsTotal"
-                );
-
-            const roomsPreview =
-                document.getElementById(
-                    "availableRoomsPreview"
-                );
+            const quickSeats = document.getElementById("quickAvailableSeats");
+            const quickSeatsCaption = document.getElementById("quickAvailableSeatsCaption");
+            const quickRooms = document.getElementById("quickAvailableRooms");
+            const quickRoomsCaption = document.getElementById("quickAvailableRoomsCaption");
+            const seatsTotal = document.getElementById("availableSeatsTotal");
+            const seatsPreview = document.getElementById("availableSeatsPreview");
+            const roomsTotal = document.getElementById("availableRoomsTotal");
+            const roomsPreview = document.getElementById("availableRoomsPreview");
+            const settingElements = [
+                ["homeContactNumber", "Phone"],
+                ["homeLibraryHours", "Opening hours"],
+                ["homeLibraryStatus", "Library status"],
+                ["homeLibraryAddress", "Address"]
+            ];
 
             if (
+                !quickSeats &&
+                !quickRooms &&
                 !seatsTotal &&
                 !seatsPreview &&
                 !roomsTotal &&
-                !roomsPreview
+                !roomsPreview &&
+                !settingElements.some(([id]) => document.getElementById(id))
             ) {
                 return;
             }
 
-            if (
-                typeof supabaseClient ===
-                "undefined"
-            ) {
-                const message =
-                    "Availability is temporarily unavailable.";
-
+            const showUnavailable = message => {
+                if (quickSeats) {
+                    quickSeats.textContent = "—";
+                }
+                if (quickSeatsCaption) {
+                    quickSeatsCaption.textContent = message;
+                }
+                if (quickRooms) {
+                    quickRooms.textContent = "—";
+                }
+                if (quickRoomsCaption) {
+                    quickRoomsCaption.textContent = message;
+                }
+                if (seatsTotal) {
+                    seatsTotal.textContent = "—";
+                }
+                if (roomsTotal) {
+                    roomsTotal.textContent = "—";
+                }
                 if (seatsPreview) {
                     seatsPreview.textContent = message;
                 }
-
                 if (roomsPreview) {
                     roomsPreview.textContent = message;
                 }
+                settingElements.forEach(([id, label]) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = `${label}: ${message}`;
+                    }
+                });
+            };
 
+            if (typeof supabaseClient === "undefined") {
+                showUnavailable("Availability and settings are temporarily unavailable.");
                 return;
             }
 
             try {
                 const [
-                    seatsResult,
-                    roomsResult
+                    totalSeatsResult,
+                    availableSeatsResult,
+                    totalRoomsResult,
+                    availableRoomsResult,
+                    availableSeats,
+                    availableRoomsResultRows,
+                    allRoomRents,
+                    librarySettingsResult,
+                    libraryPricesResult
                 ] = await Promise.all([
                     supabaseClient
                         .from("library_seats")
-                        .select("id, status, shift_id")
+                        .select("id", { count: "exact", head: true }),
+                    supabaseClient
+                        .from("library_seats")
+                        .select("id", { count: "exact", head: true })
                         .eq("status", "available"),
                     supabaseClient
                         .from("rooms")
-                        .select("id, room_number, room_type, capacity, status")
+                        .select("id", { count: "exact", head: true }),
+                    supabaseClient
+                        .from("rooms")
+                        .select("id", { count: "exact", head: true })
+                        .eq("status", "available"),
+                    (async () => {
+                        const pageSize = 1000;
+                        const seats = [];
+                        for (let offset = 0; ; offset += pageSize) {
+                            const { data, error } = await supabaseClient
+                                .from("library_seats")
+                                .select("id, status, shift_id")
+                                .eq("status", "available")
+                                .order("id", { ascending: true })
+                                .range(offset, offset + pageSize - 1);
+                            if (error) {
+                                throw error;
+                            }
+                            seats.push(...(data || []));
+                            if (!data || data.length < pageSize) {
+                                break;
+                            }
+                        }
+                        return seats;
+                    })(),
+                    supabaseClient
+                        .from("rooms")
+                        .select("id, room_number, room_type, capacity, monthly_rent, status")
                         .eq("status", "available")
-                        .order("room_number", {
-                            ascending: true
-                        })
+                        .order("room_number", { ascending: true })
+                        .limit(3),
+                    (async () => {
+                        const pageSize = 1000;
+                        const rents = [];
+                        for (let offset = 0; ; offset += pageSize) {
+                            const { data, error } = await supabaseClient
+                                .from("rooms")
+                                .select("id, monthly_rent")
+                                .order("id", { ascending: true })
+                                .range(offset, offset + pageSize - 1);
+                            if (error) {
+                                throw error;
+                            }
+                            rents.push(...(data || []));
+                            if (!data || data.length < pageSize) {
+                                break;
+                            }
+                        }
+                        return rents;
+                    })(),
+                    supabaseClient
+                        .from("app_settings")
+                        .select("value")
+                        .eq("key", "library_settings")
+                        .maybeSingle(),
+                    supabaseClient
+                        .from("app_settings")
+                        .select("value")
+                        .eq("key", "library_prices")
+                        .maybeSingle()
                 ]);
 
-                if (seatsResult.error) {
-                    throw seatsResult.error;
+                const failedResult = [
+                    totalSeatsResult,
+                    availableSeatsResult,
+                    totalRoomsResult,
+                    availableRoomsResult,
+                    availableRoomsResultRows,
+                    librarySettingsResult,
+                    libraryPricesResult
+                ].find(result => result.error);
+                if (failedResult) {
+                    throw failedResult.error;
                 }
 
-                if (roomsResult.error) {
-                    throw roomsResult.error;
+                const rowCounts = [
+                    totalSeatsResult.count,
+                    availableSeatsResult.count,
+                    totalRoomsResult.count,
+                    availableRoomsResult.count
+                ];
+                if (rowCounts.some(count => !Number.isInteger(count) || count < 0)) {
+                    throw new Error("Supabase did not return exact availability counts.");
                 }
 
-                const availableSeats =
-                    seatsResult.data || [];
-
-                const availableRooms =
-                    roomsResult.data || [];
+                const totalSeatCount = totalSeatsResult.count;
+                const availableSeatCount = Math.min(totalSeatCount, Math.max(0, availableSeatsResult.count));
+                const totalRoomCount = totalRoomsResult.count;
+                const availableRoomCount = Math.min(totalRoomCount, Math.max(0, availableRoomsResult.count));
+                const availableRooms = availableRoomsResultRows.data || [];
+                const librarySettings = librarySettingsResult.data?.value || {};
+                const libraryPrices = libraryPricesResult.data?.value || {};
+                const roomRents = allRoomRents
+                    .filter(room => room.monthly_rent !== null && room.monthly_rent !== undefined)
+                    .map(room => Number(room.monthly_rent))
+                    .filter(rent => Number.isFinite(rent) && rent >= 0);
+                const formatRent = rent => `₹${rent.toLocaleString("en-IN")}`;
 
                 if (seatsTotal) {
-                    seatsTotal.textContent =
-                        String(availableSeats.length);
+                    seatsTotal.textContent = String(availableSeatCount);
                 }
-
                 if (quickSeats) {
-                    quickSeats.textContent =
-                        String(availableSeats.length);
+                    quickSeats.textContent = `${availableSeatCount} / ${totalSeatCount}`;
                 }
-
+                if (quickSeatsCaption) {
+                    const shiftRents = ["shift1", "shift2", "shift3", "shift4"]
+                        .map(shift => Number(libraryPrices[shift]))
+                        .filter(rent => Number.isFinite(rent) && rent >= 0);
+                    const rentCaption = shiftRents.length
+                        ? ` · Shift rent ${shiftRents.map(formatRent).join(" / ")}`
+                        : "";
+                    quickSeatsCaption.textContent = `Available / total seats${rentCaption}`;
+                }
                 if (roomsTotal) {
-                    roomsTotal.textContent =
-                        String(availableRooms.length);
+                    roomsTotal.textContent = String(availableRoomCount);
                 }
-
                 if (quickRooms) {
-                    quickRooms.textContent =
-                        String(availableRooms.length);
+                    quickRooms.textContent = `${availableRoomCount} / ${totalRoomCount}`;
+                }
+                if (quickRoomsCaption) {
+                    const rentCaption = roomRents.length
+                        ? ` · Monthly rent ${formatRent(Math.min(...roomRents))}–${formatRent(Math.max(...roomRents))}`
+                        : "";
+                    quickRoomsCaption.textContent = `Available / total rooms${rentCaption}`;
                 }
 
-                renderAvailableSeats(
-                    availableSeats,
-                    seatsPreview
-                );
+                const homeContactNumber = document.getElementById("homeContactNumber");
+                const homeLibraryHours = document.getElementById("homeLibraryHours");
+                const homeLibraryStatus = document.getElementById("homeLibraryStatus");
+                const homeLibraryAddress = document.getElementById("homeLibraryAddress");
+                if (homeContactNumber) {
+                    homeContactNumber.textContent = `Phone: ${librarySettings.contact_number || "Not set"}`;
+                }
+                if (homeLibraryHours) {
+                    homeLibraryHours.textContent =
+                        librarySettings.opening_time && librarySettings.closing_time
+                            ? `Opening hours: ${librarySettings.opening_time}–${librarySettings.closing_time}`
+                            : "Opening hours: Not set";
+                }
+                if (homeLibraryStatus) {
+                    const status = librarySettings.library_open === true
+                        ? "Open"
+                        : librarySettings.library_open === false
+                            ? "Closed"
+                            : "Not configured";
+                    const bookingStatus = librarySettings.booking_enabled === false
+                        ? "Disabled"
+                        : "Enabled";
+                    homeLibraryStatus.textContent =
+                        `Library status: ${status} · Bookings: ${bookingStatus}`;
+                }
+                if (homeLibraryAddress) {
+                    homeLibraryAddress.textContent =
+                        `Address: ${librarySettings.address || "Not set"}`;
+                }
 
-                renderAvailableRooms(
-                    availableRooms,
-                    roomsPreview
-                );
+                renderAvailableSeats(availableSeats, seatsPreview);
+                renderAvailableRooms(availableRooms, roomsPreview);
             } catch (error) {
-                console.error(
-                    "Public availability load error:",
-                    error
-                );
-
-                if (seatsTotal) {
-                    seatsTotal.textContent = "—";
-                }
-
-                if (quickSeats) {
-                    quickSeats.textContent = "—";
-                }
-
-                if (roomsTotal) {
-                    roomsTotal.textContent = "—";
-                }
-
-                if (quickRooms) {
-                    quickRooms.textContent = "—";
-                }
-
-                if (seatsPreview) {
-                    seatsPreview.textContent =
-                        "Availability is temporarily unavailable.";
-                }
-
-                if (roomsPreview) {
-                    roomsPreview.textContent =
-                        "Availability is temporarily unavailable.";
-                }
+                console.error("Public availability load error:", error);
+                showUnavailable("Availability and settings are temporarily unavailable.");
             }
         }
 
@@ -796,6 +900,10 @@ document.addEventListener(
             user
         ) {
 
+            if (adminDashboardButton) {
+                adminDashboardButton.classList.add("hidden");
+            }
+
 
             const userName =
                 getUserName(
@@ -938,6 +1046,7 @@ document.addEventListener(
 
         function showLoggedOutInterface() {
 
+            authRenderVersion++;
 
             if (authButton) {
 
@@ -945,6 +1054,10 @@ document.addEventListener(
                     "hidden"
                 );
 
+            }
+
+            if (adminDashboardButton) {
+                adminDashboardButton.classList.add("hidden");
             }
 
 
@@ -966,6 +1079,33 @@ document.addEventListener(
             }
 
 
+        }
+
+        async function updateAuthenticatedInterface(user) {
+            const requestVersion = ++authRenderVersion;
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("role")
+                .eq("id", user.id)
+                .maybeSingle();
+
+            if (error) {
+                throw error;
+            }
+
+            if (requestVersion !== authRenderVersion) {
+                return;
+            }
+
+            if (String(data?.role || "user").toLowerCase() === "admin") {
+                authButton?.classList.add("hidden");
+                userProfile?.classList.add("hidden");
+                sidebarUser?.classList.add("hidden");
+                adminDashboardButton?.classList.remove("hidden");
+                return;
+            }
+
+            updateUserInterface(user);
         }
 
 
@@ -1036,10 +1176,7 @@ document.addEventListener(
                     data.user
                 ) {
 
-
-                    updateUserInterface(
-                        data.user
-                    );
+                    await updateAuthenticatedInterface(data.user);
 
 
                 }
@@ -1204,6 +1341,10 @@ document.addEventListener(
                     "userSession"
                 );
 
+                localStorage.removeItem(
+                    "isLoggedIn"
+                );
+
 
                 // REDIRECT
 
@@ -1293,13 +1434,16 @@ document.addEventListener(
                             session.user
                         ) {
 
+                    window.setTimeout(() => {
+                        updateAuthenticatedInterface(session.user)
+                            .catch(error => {
+                                console.error("User role check failed:", error);
+                                showLoggedOutInterface();
+                            });
+                    }, 0);
 
-                            updateUserInterface(
-                                session.user
-                            );
 
-
-                        }
+                }
 
                         else {
 

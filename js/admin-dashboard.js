@@ -11,11 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
     initAdminDashboard();
 });
 
+document.body.style.visibility = "hidden";
+
 
 let currentAdmin = null;
 let allUsers = [];
 let allBookings = [];
 let allRooms = [];
+let allSeats = [];
+let roomLoadError = "";
+let seatLoadError = "";
 let autoRefreshInterval = null;
 let adminRealtimeChannel = null;
 let adminNotificationItems = [];
@@ -36,7 +41,10 @@ async function initAdminDashboard() {
 
     try {
 
-        await checkAdminAccess();
+        const hasAdminAccess = await checkAdminAccess();
+        if (!hasAdminAccess) {
+            return;
+        }
 
         setupNavigation();
         setupSidebar();
@@ -55,6 +63,7 @@ async function initAdminDashboard() {
 
         await loadAdminData();
         await loadLibraryPrices();
+        await loadLibrarySettings();
         renderRoomPricingFields();
 
         startAutoRefresh();
@@ -63,11 +72,7 @@ async function initAdminDashboard() {
 
         console.error("Admin dashboard initialization error:", error);
 
-        alert(
-            "Unable to load admin dashboard. Please login again."
-        );
-
-        window.location.href = "user-login.html";
+        window.location.replace("user-login.html");
     }
 }
 
@@ -83,14 +88,21 @@ async function checkAdminAccess() {
         error
     } = await supabaseClient.auth.getUser();
 
-    if (error) {
+    const isMissingSession =
+        error &&
+        /AuthSessionMissingError|Auth session missing/i.test(
+            (error.name || "") + " " + (error.message || "")
+        );
+
+    if (error && !isMissingSession) {
         throw error;
     }
 
     const user = data?.user;
 
     if (!user) {
-        throw new Error("User is not logged in.");
+        window.location.replace("user-login.html");
+        return false;
     }
 
     const {
@@ -106,15 +118,9 @@ async function checkAdminAccess() {
         throw profileError;
     }
 
-    if (!profile || profile.role !== "admin") {
-
-        alert("Admin access required.");
-
-        await supabaseClient.auth.signOut();
-
-        window.location.href = "user-login.html";
-
-        return;
+    if (!profile || String(profile.role || "").toLowerCase() !== "admin") {
+        window.location.replace("index.html");
+        return false;
     }
 
     currentAdmin = {
@@ -123,6 +129,8 @@ async function checkAdminAccess() {
     };
 
     updateAdminProfile(currentAdmin);
+    document.body.style.visibility = "visible";
+    return true;
 }
 
 
@@ -216,7 +224,8 @@ async function loadAdminData() {
     await Promise.all([
         loadUsers(),
         loadBookings(),
-        loadRooms()
+        loadRooms(),
+        loadLibrarySeats()
     ]);
 
     updateDashboardStats();
@@ -230,6 +239,7 @@ async function loadAdminData() {
     renderRoomBookings();
 
     renderRooms();
+    renderLibrarySeats();
     renderRoomPricingFields();
 
     renderReports();
@@ -304,6 +314,7 @@ async function loadBookings() {
 ========================================================= */
 
 async function loadRooms() {
+    roomLoadError = "";
 
     const {
         data,
@@ -320,11 +331,43 @@ async function loadRooms() {
         console.error("Rooms load error:", error);
 
         allRooms = [];
+        roomLoadError = error.message || "Unable to load rooms.";
 
         return;
     }
 
     allRooms = data || [];
+}
+
+
+async function loadLibrarySeats() {
+    seatLoadError = "";
+    const pageSize = 1000;
+    const seats = [];
+
+    try {
+        for (let offset = 0; ; offset += pageSize) {
+            const { data, error } = await supabaseClient
+                .from("library_seats")
+                .select("*")
+                .order("id", { ascending: true })
+                .range(offset, offset + pageSize - 1);
+
+            if (error) {
+                throw error;
+            }
+
+            seats.push(...(data || []));
+            if (!data || data.length < pageSize) {
+                break;
+            }
+        }
+        allSeats = seats;
+    } catch (error) {
+        console.error("Library seats load error:", error);
+        allSeats = [];
+        seatLoadError = error.message || "Unable to load library seats.";
+    }
 }
 
 
@@ -1171,6 +1214,163 @@ function setupBookingFilters() {
 
 
 /* =========================================================
+   LIBRARY SEATS
+========================================================= */
+
+function renderLibrarySeats() {
+    const table = document.getElementById("librarySeatsTable");
+    if (!table) {
+        return;
+    }
+
+    if (seatLoadError) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-table">Unable to load library seats: ${escapeHTML(seatLoadError)}</td>
+            </tr>
+        `;
+        return;
+    }
+
+    if (!allSeats.length) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-table">No library seats found.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    table.innerHTML = allSeats.map(seat => `
+        <tr>
+            <td>${escapeHTML(String(seat.id))}</td>
+            <td>${escapeHTML(seat.shift_id || "Not assigned")}</td>
+            <td>${renderRoomStatus(seat.status)}</td>
+            <td>
+                <button type="button" data-seat-action="edit" data-seat-id="${escapeHTML(String(seat.id))}" style="padding:6px 10px; border:none; border-radius:6px; background:#315d8c; color:#fff; cursor:pointer;">Edit</button>
+            </td>
+        </tr>
+    `).join("");
+}
+
+
+function openLibrarySeatModal(seat) {
+    const currentShift = String(seat.shift_id || "");
+    const shiftOptions = [
+        ["shift1", "Morning Shift"],
+        ["shift2", "Day Shift"],
+        ["shift3", "Afternoon Shift"],
+        ["shift4", "Evening Shift"]
+    ];
+    if (currentShift && !shiftOptions.some(([value]) => value === currentShift)) {
+        shiftOptions.push([currentShift, currentShift]);
+    }
+
+    const currentStatus = String(seat.status || "available").toLowerCase();
+    const statusOptions = ["available", "occupied", "maintenance"];
+    if (!statusOptions.includes(currentStatus)) {
+        statusOptions.push(currentStatus);
+    }
+
+    const html = `
+        <form data-admin-form="seat" data-seat-id="${escapeHTML(String(seat.id))}" style="display:grid; gap:14px;">
+            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                Shift
+                <select name="shift_id" required style="padding:10px 12px; border:1px solid #d9e0e8; border-radius:8px;">
+                    <option value="">Select shift</option>
+                    ${shiftOptions.map(([value, label]) => `<option value="${escapeHTML(value)}" ${currentShift === value ? "selected" : ""}>${escapeHTML(label)}</option>`).join("")}
+                </select>
+            </label>
+            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+                Availability
+                <select name="status" required style="padding:10px 12px; border:1px solid #d9e0e8; border-radius:8px;">
+                    ${statusOptions.map(status => `<option value="${escapeHTML(status)}" ${currentStatus === status ? "selected" : ""}>${escapeHTML(status)}</option>`).join("")}
+                </select>
+            </label>
+            <p data-admin-form-message role="status" aria-live="polite" style="margin:0;"></p>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="submit" style="padding:10px 18px; border:none; border-radius:8px; background:#1e3a5f; color:#fff; cursor:pointer; font-weight:700;">Save Changes</button>
+                <button type="button" data-close-admin-modal style="padding:10px 16px; border:none; border-radius:8px; background:#eef2f6; color:#1e3a5f; cursor:pointer; font-weight:700;">Close</button>
+            </div>
+        </form>
+    `;
+    showAdminModal(`Edit Library Seat ${seat.id}`, html);
+}
+
+
+async function saveLibrarySeatUpdate(form) {
+    const seatId = form.dataset.seatId;
+    const message = form.querySelector("[data-admin-form-message]");
+    const submitButton = form.querySelector('button[type="submit"]');
+    const shiftId = form.elements.shift_id.value;
+    const status = form.elements.status.value;
+
+    if (!seatId || !shiftId || !["available", "occupied", "maintenance"].includes(status)) {
+        if (message) {
+            message.textContent = "Select a valid shift and availability status.";
+        }
+        return;
+    }
+
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+    if (message) {
+        message.textContent = "Saving library seat...";
+    }
+
+    try {
+        const currentSeat = allSeats.find(item => String(item.id) === String(seatId));
+        if (!currentSeat) {
+            throw new Error("Seat details are no longer available. Refresh the dashboard and try again.");
+        }
+        if (currentSeat.shift_id !== shiftId || currentSeat.status !== status) {
+            const { data: linkedBookings, error: bookingsError } = await supabaseClient
+                .from("bookings")
+                .select("id, status")
+                .eq("seat_id", seatId)
+                .in("status", ["pending", "active", "approved", "confirmed", "booked"]);
+
+            if (bookingsError) {
+                throw bookingsError;
+            }
+            if (linkedBookings?.length) {
+                throw new Error("This seat is linked to an active booking. Resolve the booking before changing the seat.");
+            }
+        }
+
+        const { data, error } = await supabaseClient
+            .from("library_seats")
+            .update({ shift_id: shiftId, status })
+            .eq("id", seatId)
+            .select("id")
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+        if (!data) {
+            throw new Error("No seat was updated. Check the admin permissions and seat ID.");
+        }
+
+        if (message) {
+            message.textContent = "Library seat updated successfully.";
+        }
+        await loadAdminData();
+    } catch (error) {
+        console.error("Library seat update error:", error);
+        if (message) {
+            message.textContent = `Unable to update library seat: ${error.message || "Please try again."}`;
+        }
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+    }
+}
+
+
+/* =========================================================
    ROOMS
 ========================================================= */
 
@@ -1185,6 +1385,15 @@ function renderRooms() {
        return;
    }
 
+
+   if (roomLoadError) {
+       table.innerHTML = `
+           <tr>
+               <td colspan="6" class="empty-table">Unable to load rooms: ${escapeHTML(roomLoadError)}</td>
+           </tr>
+       `;
+       return;
+   }
 
    if (allRooms.length === 0) {
 
@@ -1515,6 +1724,9 @@ function openSection(sectionName) {
 
         roomBookings:
             "Room Bookings",
+
+        library:
+            "Library",
 
         rooms:
             "Rooms",
@@ -2121,6 +2333,23 @@ function setupAdminActionHandlers() {
                await handleRoomAction(
                    roomActionTarget
                );
+               return;
+           }
+
+           const seatActionTarget =
+               target?.closest(
+                   "[data-seat-action]"
+               );
+
+           if (seatActionTarget) {
+               const seat = allSeats.find(
+                   item => String(item.id) === String(seatActionTarget.dataset.seatId)
+               );
+               if (!seat) {
+                   alert("Library seat data is not available. Please refresh the dashboard.");
+                   return;
+               }
+               openLibrarySeatModal(seat);
            }
        }
    );
@@ -2158,6 +2387,13 @@ function setupAdminActionHandlers() {
                form.dataset.adminForm === "room"
            ) {
                await saveRoomUpdate(form);
+               return;
+           }
+
+           if (
+               form.dataset.adminForm === "seat"
+           ) {
+               await saveLibrarySeatUpdate(form);
                return;
            }
 
@@ -2234,6 +2470,345 @@ function setupPricingControls() {
     document
         .getElementById("roomPricingForm")
         ?.addEventListener("submit", saveRoomPrices);
+    document
+        .getElementById("librarySettingsForm")
+        ?.addEventListener("submit", saveLibrarySettings);
+    document
+        .getElementById("capacitySettingsForm")
+        ?.addEventListener("submit", saveInventoryCapacity);
+}
+
+
+async function loadLibrarySettings() {
+    const totalSeatsInput = document.getElementById("settingTotalSeats");
+    const totalRoomsInput = document.getElementById("settingTotalRooms");
+    const capacityMessage = document.getElementById("inventorySettingsMessage");
+
+    try {
+        const [
+            settingsResult,
+            seatsCountResult,
+            roomsCountResult
+        ] = await Promise.all([
+            supabaseClient
+                .from("app_settings")
+                .select("value")
+                .eq("key", "library_settings")
+                .maybeSingle(),
+            supabaseClient
+                .from("library_seats")
+                .select("id", { count: "exact", head: true }),
+            supabaseClient
+                .from("rooms")
+                .select("id", { count: "exact", head: true })
+        ]);
+
+        if (settingsResult.error) {
+            throw settingsResult.error;
+        }
+        if (seatsCountResult.error) {
+            throw seatsCountResult.error;
+        }
+        if (roomsCountResult.error) {
+            throw roomsCountResult.error;
+        }
+        if (
+            !Number.isInteger(seatsCountResult.count) ||
+            !Number.isInteger(roomsCountResult.count)
+        ) {
+            throw new Error("Supabase did not return exact inventory counts.");
+        }
+
+        if (totalSeatsInput) {
+            totalSeatsInput.value = String(Math.max(0, seatsCountResult.count));
+        }
+        if (totalRoomsInput) {
+            totalRoomsInput.value = String(Math.max(0, roomsCountResult.count));
+        }
+
+        const settings = settingsResult.data?.value || {};
+        const libraryOpenInput = document.getElementById("settingLibraryOpen");
+        const bookingEnabledInput = document.getElementById("settingBookingEnabled");
+        const contactNumberInput = document.getElementById("settingContactNumber");
+        if (libraryOpenInput) {
+            libraryOpenInput.value =
+            settings.library_open === true
+                ? "open"
+                : settings.library_open === false
+                    ? "closed"
+                    : "";
+        }
+        if (bookingEnabledInput) {
+            bookingEnabledInput.checked = settings.booking_enabled !== false;
+        }
+        if (contactNumberInput) {
+            contactNumberInput.value = settings.contact_number || "";
+        }
+        if (capacityMessage) {
+            capacityMessage.textContent =
+                "Seat totals are saved to actual seat records. Room totals reflect saved room records.";
+        }
+    } catch (error) {
+        console.error("Library settings load error:", error);
+        if (totalSeatsInput) {
+            totalSeatsInput.value = "";
+            totalSeatsInput.placeholder = "Unavailable";
+        }
+        if (totalRoomsInput) {
+            totalRoomsInput.value = "";
+            totalRoomsInput.placeholder = "Unavailable";
+        }
+        if (capacityMessage) {
+            capacityMessage.textContent =
+                "Unable to load inventory counts. Please refresh and try again.";
+        }
+        const message = document.getElementById("librarySettingsMessage");
+        if (message) {
+            message.textContent = "Unable to load saved library settings.";
+        }
+    }
+}
+
+
+async function saveInventoryCapacity(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const message = document.getElementById("capacitySettingsMessage");
+    const seatsInput = form.elements.total_seats;
+    const desiredTotal = Number(seatsInput.value);
+    const newSeatShift = form.elements.new_seat_shift.value;
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    if (seatLoadError) {
+        if (message) {
+            message.textContent = `Cannot change seat inventory because it failed to load: ${seatLoadError}`;
+        }
+        return;
+    }
+    if (!Number.isSafeInteger(desiredTotal) || desiredTotal < 0) {
+        if (message) {
+            message.textContent = "Enter a valid non-negative whole-number seat total.";
+        }
+        return;
+    }
+    const currentTotal = allSeats.length;
+    const difference = desiredTotal - currentTotal;
+    if (difference === 0) {
+        if (message) {
+            message.textContent = "Seat total is already up to date.";
+        }
+        return;
+    }
+
+    if (difference > 0 && !["shift1", "shift2", "shift3", "shift4"].includes(newSeatShift)) {
+        if (message) {
+            message.textContent = "Choose the shift for the added seats.";
+        }
+        return;
+    }
+
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+    if (message) {
+        message.textContent = "Saving seat inventory...";
+    }
+
+    try {
+        if (difference > 0) {
+            const newSeats = Array.from({ length: difference }, () => ({
+                shift_id: newSeatShift,
+                status: "available"
+            }));
+            const { data, error } = await supabaseClient
+                .from("library_seats")
+                .insert(newSeats)
+                .select("id");
+
+            if (error) {
+                throw error;
+            }
+            if (!data || data.length !== difference) {
+                throw new Error(`Supabase created ${data?.length || 0} of ${difference} requested seats.`);
+            }
+
+            if (message) {
+                message.textContent = `Added ${difference} seat${difference === 1 ? "" : "s"} to ${newSeatShift}.`;
+            }
+        } else {
+            const seatsToRemove = Math.abs(difference);
+            const availableSeats = allSeats.filter(seat => seat.status === "available");
+            const bookedSeatIds = new Set();
+            const candidateIds = availableSeats.map(seat => String(seat.id));
+
+            for (let offset = 0; offset < candidateIds.length; offset += 100) {
+                const candidateBatch = candidateIds.slice(offset, offset + 100);
+                const { data: linkedBookings, error: linkedBookingsError } = await supabaseClient
+                    .from("bookings")
+                    .select("seat_id")
+                    .in("seat_id", candidateBatch);
+
+                if (linkedBookingsError) {
+                    throw linkedBookingsError;
+                }
+
+                (linkedBookings || []).forEach(booking => {
+                    if (booking.seat_id !== null && booking.seat_id !== undefined) {
+                        bookedSeatIds.add(String(booking.seat_id));
+                    }
+                });
+            }
+
+            const removableSeats = availableSeats.filter(
+                seat => !bookedSeatIds.has(String(seat.id))
+            );
+
+            if (removableSeats.length < seatsToRemove) {
+                throw new Error(
+                    `Cannot reduce by ${seatsToRemove}. Only ${removableSeats.length} available seats have no booking history.`
+                );
+            }
+
+            if (!window.confirm(
+                `This will permanently remove ${seatsToRemove} available seat record${seatsToRemove === 1 ? "" : "s"}. Continue?`
+            )) {
+                if (message) {
+                    message.textContent = "Seat total change cancelled.";
+                }
+                return;
+            }
+
+            const idsToRemove = removableSeats
+                .slice(0, seatsToRemove)
+                .map(seat => String(seat.id));
+            const { data, error } = await supabaseClient
+                .from("library_seats")
+                .delete()
+                .in("id", idsToRemove)
+                .select("id");
+
+            if (error) {
+                throw error;
+            }
+            if (!data || data.length !== seatsToRemove) {
+                throw new Error(
+                    `Supabase removed ${data?.length || 0} of ${seatsToRemove} requested seats. Refresh and verify inventory.`
+                );
+            }
+
+            if (message) {
+                message.textContent = `Removed ${seatsToRemove} unbooked seat${seatsToRemove === 1 ? "" : "s"}.`;
+            }
+        }
+
+        await loadAdminData();
+        seatsInput.value = String(allSeats.length);
+    } catch (error) {
+        console.error("Seat capacity update error:", error);
+        if (message) {
+            message.textContent = `Unable to update seat total: ${error.message || "Please try again."}`;
+        }
+        await loadAdminData();
+        seatsInput.value = String(allSeats.length);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+    }
+}
+
+
+async function saveLibrarySettings(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const message = document.getElementById("librarySettingsMessage");
+    const libraryOpen = form.elements.library_open.value;
+    const contactNumber = form.elements.contact_number.value.trim();
+    const contactDigits = contactNumber.replace(/\D/g, "");
+
+    if (!["open", "closed"].includes(libraryOpen)) {
+        if (message) {
+            message.textContent = "Select whether the library is open or closed.";
+        }
+        return;
+    }
+
+    if (
+        !/^\+?[\d\s().-]+$/.test(contactNumber) ||
+        contactDigits.length < 7 ||
+        contactDigits.length > 15
+    ) {
+        if (message) {
+            message.textContent = "Enter a valid contact number with 7 to 15 digits.";
+        }
+        return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+    if (message) {
+        message.textContent = "Saving library settings...";
+    }
+
+    try {
+        const { data: existingSettingsResult, error: settingsReadError } = await supabaseClient
+            .from("app_settings")
+            .select("value")
+            .eq("key", "library_settings")
+            .maybeSingle();
+
+        if (settingsReadError) {
+            throw settingsReadError;
+        }
+
+        const storedValue = existingSettingsResult?.value || {};
+        const parsedSettings = typeof storedValue === "string"
+            ? JSON.parse(storedValue)
+            : storedValue;
+        if (
+            !parsedSettings ||
+            typeof parsedSettings !== "object" ||
+            Array.isArray(parsedSettings)
+        ) {
+            throw new Error("Saved library settings have an invalid format.");
+        }
+        const settings = {
+            ...parsedSettings,
+            library_open: libraryOpen === "open",
+            booking_enabled: form.elements.booking_enabled.checked,
+            contact_number: contactNumber
+        };
+
+        const { error } = await supabaseClient
+            .from("app_settings")
+            .upsert({
+                key: "library_settings",
+                value: settings,
+                updated_by: currentAdmin.id,
+                updated_at: new Date().toISOString()
+            }, { onConflict: "key" });
+
+        if (error) {
+            throw error;
+        }
+
+        if (message) {
+            message.textContent = "Library settings saved.";
+        }
+    } catch (error) {
+        console.error("Library settings save error:", error);
+        if (message) {
+            message.textContent = `Unable to save library settings: ${error.message || "Please try again."}`;
+        }
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+    }
 }
 
 
@@ -2260,10 +2835,16 @@ function renderRoomPricingFields() {
 async function saveRoomPrices(event) {
     event.preventDefault();
 
-    const inputs = event.target.querySelectorAll("[data-room-price-id]");
+    const form = event.currentTarget;
+    const inputs = form.querySelectorAll("[data-room-price-id]");
+    const submitButton = form.querySelector('button[type="submit"]');
     if (!inputs.length) {
         alert("No rooms available to update.");
         return;
+    }
+
+    if (submitButton) {
+        submitButton.disabled = true;
     }
 
     try {
@@ -2273,13 +2854,18 @@ async function saveRoomPrices(event) {
                 throw new Error("Please enter valid non-negative room rents.");
             }
 
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from("rooms")
                 .update({ monthly_rent: monthlyRent })
-                .eq("id", input.dataset.roomPriceId);
+                .eq("id", input.dataset.roomPriceId)
+                .select("id")
+                .maybeSingle();
 
             if (error) {
                 throw error;
+            }
+            if (!data) {
+                throw new Error(`No room was updated for ID ${input.dataset.roomPriceId}.`);
             }
         }
 
@@ -2289,6 +2875,10 @@ async function saveRoomPrices(event) {
     } catch (error) {
         console.error("Room rent update error:", error);
         alert(`Unable to save room rents: ${error.message || "Please try again."}`);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
     }
 }
 
@@ -2847,12 +3437,17 @@ function openRoomModal(room = null) {
 
    const isEdit = Boolean(room);
    const title = isEdit ? "Edit Room" : "Add Room";
+   const currentStatus = String(room?.status || "available").toLowerCase();
+   const roomStatuses = ["available", "occupied", "maintenance"];
+   if (!roomStatuses.includes(currentStatus)) {
+       roomStatuses.push(currentStatus);
+   }
 
    const html = `
        <form data-admin-form="room" data-room-id="${room ? room.id : ""}" style="display:grid; gap:14px;">
            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
                <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
-                   Room Number
+                   Room Name / Number
                    <input type="text" name="room_number" value="${escapeHTML(room?.room_number || "")}" required style="padding:10px 12px; border:1px solid #d9e0e8; border-radius:8px;" />
                </label>
 
@@ -2873,14 +3468,18 @@ function openRoomModal(room = null) {
            </div>
 
            <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
+               Description
+               <textarea name="description" maxlength="1000" rows="3" style="padding:10px 12px; border:1px solid #d9e0e8; border-radius:8px; resize:vertical;">${escapeHTML(room?.description || "")}</textarea>
+           </label>
+
+           <label style="display:grid; gap:6px; color:#1e3a5f; font-weight:600;">
                Status
                <select name="status" style="padding:10px 12px; border:1px solid #d9e0e8; border-radius:8px;">
-                   <option value="available" ${String(room?.status || "available").toLowerCase() === "available" ? "selected" : ""}>Available</option>
-                   <option value="occupied" ${String(room?.status || "available").toLowerCase() === "occupied" ? "selected" : ""}>Occupied</option>
-                   <option value="maintenance" ${String(room?.status || "available").toLowerCase() === "maintenance" ? "selected" : ""}>Maintenance</option>
+                   ${roomStatuses.map(status => `<option value="${escapeHTML(status)}" ${currentStatus === status ? "selected" : ""}>${escapeHTML(status)}</option>`).join("")}
                </select>
            </label>
 
+           <p data-admin-form-message role="status" aria-live="polite" style="margin:0;"></p>
            <div style="display:flex; justify-content:flex-end; gap:10px;">
                <button type="submit" style="padding:10px 18px; border:none; border-radius:8px; background:#1e3a5f; color:#fff; cursor:pointer; font-weight:700;">${isEdit ? "Update Room" : "Add Room"}</button>
                <button type="button" data-close-admin-modal style="padding:10px 16px; border:none; border-radius:8px; background:#eef2f6; color:#1e3a5f; cursor:pointer; font-weight:700;">Close</button>
@@ -2895,45 +3494,117 @@ function openRoomModal(room = null) {
 async function saveRoomUpdate(form) {
 
    const roomId = form.dataset.roomId;
+   const roomNumber = form.elements.room_number.value.trim();
+   const roomType = form.elements.room_type.value.trim();
+   const capacity = Number(form.elements.capacity.value);
+   const monthlyRent = Number(form.elements.monthly_rent.value);
+   const description = form.elements.description.value.trim();
+   const status = form.elements.status.value;
+   const message = form.querySelector("[data-admin-form-message]");
+   const submitButton = form.querySelector('button[type="submit"]');
+
+   if (!roomNumber || !roomType) {
+       if (message) {
+           message.textContent = "Room name/number and room type are required.";
+       }
+       return;
+   }
+
+   if (!Number.isInteger(capacity) || capacity < 0) {
+       if (message) {
+           message.textContent = "Enter a valid non-negative whole-number capacity.";
+       }
+       return;
+   }
+
+   if (!Number.isFinite(monthlyRent) || monthlyRent < 0) {
+       if (message) {
+           message.textContent = "Enter a valid non-negative monthly rent.";
+       }
+       return;
+   }
+
+   if (!["available", "occupied", "maintenance"].includes(status)) {
+       if (message) {
+           message.textContent = "Select a valid room availability status.";
+       }
+       return;
+   }
+
+   if (description.length > 1000) {
+       if (message) {
+           message.textContent = "Room description must be 1000 characters or fewer.";
+       }
+       return;
+   }
+
    const payload = {
-       room_number: form.elements.room_number.value.trim(),
-       room_type: form.elements.room_type.value.trim(),
-       capacity: Number(form.elements.capacity.value || 0),
-       monthly_rent: Number(form.elements.monthly_rent.value || 0),
-       status: form.elements.status.value
+       room_number: roomNumber,
+       room_type: roomType,
+       capacity,
+       monthly_rent: monthlyRent,
+       status
    };
+
+   const existingRoom = allRooms.find(item => String(item.id) === String(roomId));
+   if (Object.prototype.hasOwnProperty.call(existingRoom || {}, "description") || description) {
+       payload.description = description;
+   }
+
+   if (submitButton) {
+       submitButton.disabled = true;
+   }
+   if (message) {
+       message.textContent = "Saving room...";
+   }
 
    try {
 
        if (roomId) {
-           const {
-               error
-           } = await supabaseClient
+           const { data, error } = await supabaseClient
                .from("rooms")
                .update(payload)
-               .eq("id", roomId);
+               .eq("id", roomId)
+               .select("id")
+               .maybeSingle();
 
            if (error) {
                throw error;
            }
+           if (!data) {
+               throw new Error("No room was updated. Check the admin permissions and room ID.");
+           }
        } else {
-           const {
-               error
-           } = await supabaseClient
+           const { data, error } = await supabaseClient
                .from("rooms")
-               .insert(payload);
+               .insert(payload)
+               .select("id")
+               .single();
 
            if (error) {
                throw error;
+           }
+           if (!data) {
+               throw new Error("The room was not returned after saving.");
            }
        }
 
-       closeAdminModal();
+       if (message) {
+           message.textContent = "Room details saved successfully.";
+       }
        await loadAdminData();
+       closeAdminModal();
+       alert("Room details saved successfully.");
 
    } catch (error) {
        console.error("Room save error:", error);
-       alert("Unable to save room details.");
+       if (message) {
+           message.textContent = `Unable to save room details: ${error.message || "Please try again."}`;
+       }
+   } finally {
+       if (submitButton) {
+           submitButton.disabled = false;
+       }
    }
 }
 
@@ -3020,24 +3691,27 @@ async function saveAdminProfile(form) {
 async function updateRoomStatus(roomId, newStatus) {
    try {
 
-       const {
-           error
-       } = await supabaseClient
+       const { data, error } = await supabaseClient
            .from("rooms")
            .update({
                status: newStatus
            })
-           .eq("id", roomId);
+           .eq("id", roomId)
+           .select("id")
+           .maybeSingle();
 
        if (error) {
            throw error;
+       }
+       if (!data) {
+           throw new Error("No room was updated. Check the admin permissions and room ID.");
        }
 
        await loadAdminData();
 
    } catch (error) {
        console.error("Room status update error:", error);
-       alert("Unable to update room status.");
+       alert(`Unable to update room status: ${error.message || "Please try again."}`);
    }
 }
 
@@ -3046,22 +3720,25 @@ async function deleteRoom(roomId) {
 
    try {
 
-       const {
-           error
-       } = await supabaseClient
+       const { data, error } = await supabaseClient
            .from("rooms")
            .delete()
-           .eq("id", roomId);
+           .eq("id", roomId)
+           .select("id")
+           .maybeSingle();
 
        if (error) {
            throw error;
+       }
+       if (!data) {
+           throw new Error("No room was deleted. Check the admin delete permission and room ID.");
        }
 
        await loadAdminData();
 
    } catch (error) {
        console.error("Room delete error:", error);
-       alert("Unable to delete room.");
+       alert(`Unable to delete room: ${error.message || "Please try again."}`);
    }
 }
 

@@ -330,32 +330,75 @@ async function checkUserLogin() {
         .auth
         .getUser();
 
+    const isMissingSession =
+        error &&
+        /AuthSessionMissingError|Auth session missing/i.test(
+            (error.name || "") + " " + (error.message || "")
+        );
+
+    if (error && !isMissingSession) {
+        throw error;
+    }
+
+    currentUser = data?.user || null;
+    return Boolean(currentUser);
+
+}
+
+
+async function areBookingsEnabled() {
+    const { data, error } = await supabaseClient
+        .from("app_settings")
+        .select("value")
+        .eq("key", "library_settings")
+        .maybeSingle();
+
     if (error) {
-        const isMissingSessionError =
-            /AuthSessionMissingError|Auth session missing/i.test(
-                (error.name || "") + " " + (error.message || "")
-            );
+        throw error;
+    }
 
-        if (!isMissingSessionError) {
-            throw error;
+    return data?.value?.booking_enabled !== false;
+}
+
+
+function saveLibraryBookingDraft() {
+    sessionStorage.setItem("libraryBookingDraft", JSON.stringify({
+        name: document.getElementById("libraryUserName")?.value || "",
+        mobile: document.getElementById("libraryMobile")?.value || "",
+        shift: libraryShift?.value || "",
+        startDate: libraryStartDate?.value || ""
+    }));
+}
+
+
+function restoreLibraryBookingDraft() {
+    const draftValue = sessionStorage.getItem("libraryBookingDraft");
+    if (!draftValue) {
+        return;
+    }
+
+    try {
+        const draft = JSON.parse(draftValue);
+        const nameInput = document.getElementById("libraryUserName");
+        const mobileInput = document.getElementById("libraryMobile");
+
+        if (nameInput && typeof draft.name === "string") {
+            nameInput.value = draft.name;
         }
-
-        window.location.href = "user-login.html";
-        return false;
+        if (mobileInput && typeof draft.mobile === "string") {
+            mobileInput.value = draft.mobile;
+        }
+        if (libraryStartDate && typeof draft.startDate === "string") {
+            libraryStartDate.value = draft.startDate;
+        }
+        if (libraryShift && typeof draft.shift === "string" && libraryShifts[draft.shift]) {
+            libraryShift.value = draft.shift;
+            updateShiftDetails();
+        }
+    } catch (error) {
+        console.error("Library booking draft could not be restored:", error);
+        sessionStorage.removeItem("libraryBookingDraft");
     }
-
-    if (!data || !data.user) {
-        window.location.href =
-            "user-login.html";
-
-        return false;
-    }
-
-    currentUser =
-        data.user;
-
-    return true;
-
 }
 
 
@@ -512,6 +555,24 @@ if (libraryBookingForm) {
 
             event.preventDefault();
 
+            try {
+                const loggedIn = await checkUserLogin();
+                if (!loggedIn) {
+                    saveLibraryBookingDraft();
+                    window.location.href = "user-login.html";
+                    return;
+                }
+
+                if (!(await areBookingsEnabled())) {
+                    showBookingError("New bookings are currently disabled.");
+                    return;
+                }
+            } catch (error) {
+                console.error("Library booking eligibility check failed:", error);
+                showBookingError("Unable to verify your login or booking availability. Please try again.");
+                return;
+            }
+
 
             /* GET VALUES */
 
@@ -627,16 +688,6 @@ if (libraryBookingForm) {
 
 
             try {
-
-                if (!currentUser) {
-                    const loggedIn =
-                        await checkUserLogin();
-
-                    if (!loggedIn) {
-                        return;
-                    }
-                }
-
                 if (!currentUser?.email || !window.RajLibraryValidation.isValidEmail(currentUser.email)) {
                     showBookingError(
                         window.RajLibraryValidation.ERRORS?.EMAIL || "Enter a valid email address."
@@ -746,6 +797,7 @@ if (libraryBookingForm) {
                 localStorage.removeItem(
                     "selectedShiftId"
                 );
+                sessionStorage.removeItem("libraryBookingDraft");
 
                 setTimeout(
                     function () {
@@ -790,6 +842,7 @@ document.addEventListener(
             await checkUserLogin();
             await loadLibraryPrices();
             loadSelectedShift();
+            restoreLibraryBookingDraft();
         } catch (error) {
             console.error(
                 "Library Login Check Error:",

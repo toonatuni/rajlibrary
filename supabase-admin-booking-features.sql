@@ -478,3 +478,34 @@ BEGIN
     END IF;
 END
 $$;
+
+-- Enforce the admin booking switch for every insert, including direct API calls.
+CREATE OR REPLACE FUNCTION public.enforce_library_booking_setting()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    booking_enabled boolean := true;
+BEGIN
+    SELECT COALESCE((value ->> 'booking_enabled')::boolean, true)
+    INTO booking_enabled
+    FROM public.app_settings
+    WHERE key = 'library_settings';
+
+    IF NOT COALESCE(booking_enabled, true) THEN
+        RAISE EXCEPTION 'New bookings are currently disabled.'
+            USING ERRCODE = 'P0001';
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_library_booking_setting_trigger ON public.bookings;
+
+CREATE TRIGGER enforce_library_booking_setting_trigger
+    BEFORE INSERT ON public.bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION public.enforce_library_booking_setting();

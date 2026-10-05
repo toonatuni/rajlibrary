@@ -230,8 +230,7 @@ async function getUserRole(
 
             );
 
-
-            return "user";
+            throw error;
 
         }
 
@@ -273,7 +272,7 @@ async function getUserRole(
         );
 
 
-        return "user";
+        throw error;
 
     }
 
@@ -304,13 +303,19 @@ async function redirectByRole(
     }
 
 
-    const role =
+    let role;
 
-        await getUserRole(
-
-            user.id
-
-        );
+    try {
+        role = await getUserRole(user.id);
+    } catch (error) {
+        console.error("Unable to determine account role; redirect cancelled.", error);
+        const message = document.getElementById("loginMessage");
+        if (message) {
+            message.style.color = "red";
+            message.textContent = "Unable to verify your account role. Please try again.";
+        }
+        return;
+    }
 
 
     console.log(
@@ -349,7 +354,7 @@ async function redirectByRole(
 
     window.location.href =
 
-        "user-dashboard.html";
+        "index.html";
 
 
 }
@@ -1197,9 +1202,9 @@ async function checkExistingSession() {
             );
 
 
-            // Keep the login page visible when a browser already has a
-            // Supabase session. The user can explicitly log out before
-            // signing in with another account.
+            if (document.getElementById("loginEmail")) {
+                await redirectByRole(user);
+            }
 
         }
 

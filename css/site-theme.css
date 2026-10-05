@@ -31,3 +31,12 @@ html body .booking-background,
 html body .library-booking-background {
     display: none !important;
 }
+
+html body form input:focus,
+html body form select:focus,
+html body form textarea:focus {
+    border-color: transparent !important;
+    outline: 1px solid #c59b5d !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
+}

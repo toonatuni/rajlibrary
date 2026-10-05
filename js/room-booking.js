@@ -172,7 +172,7 @@ const urlParams =
 const roomId =
     urlParams.get(
         "room"
-    );
+    ) || sessionStorage.getItem("pendingRoomBookingId");
 
 
 // ==========================================
@@ -181,78 +181,82 @@ const roomId =
 
 async function checkUserLogin() {
 
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.getUser();
 
-    try {
-
-
-        const {
-
-            data,
-
-            error
-
-        } =
-        await supabaseClient
-            .auth
-            .getUser();
-
-
-        if (error) {
-
-            console.error(
-                "User Login Check Error:",
-                error
-            );
-
-        }
-
-
-        if (
-            !data ||
-            !data.user
-        ) {
-
-
-            alert(
-                "Please sign in before booking a room."
-            );
-
-
-            window.location.href =
-                "user-login.html";
-
-
-            return false;
-
-        }
-
-
-        currentUser =
-            data.user;
-
-
-        return true;
-
-
-    }
-    catch (error) {
-
-
-        console.error(
-            "Login Check Error:",
-            error
+    const isMissingSession =
+        error &&
+        /AuthSessionMissingError|Auth session missing/i.test(
+            (error.name || "") + " " + (error.message || "")
         );
 
-
-        window.location.href =
-            "user-login.html";
-
-
-        return false;
-
+    if (error && !isMissingSession) {
+        throw error;
     }
 
+    currentUser = data?.user || null;
+    return Boolean(currentUser);
 
+
+}
+
+
+async function areBookingsEnabled() {
+    const { data, error } = await supabaseClient
+        .from("app_settings")
+        .select("value")
+        .eq("key", "library_settings")
+        .maybeSingle();
+
+    if (error) {
+        throw error;
+    }
+
+    return data?.value?.booking_enabled !== false;
+}
+
+
+function roomBookingDraftKey() {
+    return `roomBookingDraft:${roomId || "unknown"}`;
+}
+
+
+function saveRoomBookingDraft() {
+    sessionStorage.setItem(roomBookingDraftKey(), JSON.stringify({
+        name: document.getElementById("bookingUserName")?.value || "",
+        mobile: document.getElementById("bookingMobile")?.value || "",
+        date: document.getElementById("bookingDate")?.value || ""
+    }));
+}
+
+
+function restoreRoomBookingDraft() {
+    const draftValue = sessionStorage.getItem(roomBookingDraftKey());
+    if (!draftValue) {
+        return;
+    }
+
+    try {
+        const draft = JSON.parse(draftValue);
+        const nameInput = document.getElementById("bookingUserName");
+        const mobileInput = document.getElementById("bookingMobile");
+        const dateInput = document.getElementById("bookingDate");
+
+        if (nameInput && typeof draft.name === "string") {
+            nameInput.value = draft.name;
+        }
+        if (mobileInput && typeof draft.mobile === "string") {
+            mobileInput.value = draft.mobile;
+        }
+        if (dateInput && typeof draft.date === "string") {
+            dateInput.value = draft.date;
+        }
+    } catch (error) {
+        console.error("Room booking draft could not be restored:", error);
+        sessionStorage.removeItem(roomBookingDraftKey());
+    }
 }
 
 
@@ -274,8 +278,8 @@ async function loadRoomDetails() {
     if (!roomId) {
 
 
-        console.error(
-            "Room ID not found in URL"
+        console.warn(
+            "Room ID not found in URL; select a room before opening this page."
         );
 
 
@@ -601,19 +605,31 @@ async function createRoomBooking(
     // CHECK LOGIN
     // ======================================
 
-    if (!currentUser) {
-
-
-        const loggedIn =
-            await checkUserLogin();
-
-
+    try {
+        const loggedIn = await checkUserLogin();
         if (!loggedIn) {
-
+            saveRoomBookingDraft();
+            if (selectedRoom?.id) {
+                sessionStorage.setItem("pendingRoomBookingId", selectedRoom.id);
+            }
+            window.location.href = "user-login.html";
             return;
-
         }
 
+        if (!(await areBookingsEnabled())) {
+            if (bookingMessage) {
+                bookingMessage.style.color = "red";
+                bookingMessage.textContent = "New bookings are currently disabled.";
+            }
+            return;
+        }
+    } catch (error) {
+        console.error("Room booking eligibility check failed:", error);
+        if (bookingMessage) {
+            bookingMessage.style.color = "red";
+            bookingMessage.textContent = "Unable to verify your login or booking availability. Please try again.";
+        }
+        return;
     }
 
 
@@ -843,6 +859,8 @@ async function createRoomBooking(
         );
 
         const createdBooking = data && data[0] ? data[0] : null;
+        sessionStorage.removeItem(roomBookingDraftKey());
+        sessionStorage.removeItem("pendingRoomBookingId");
 
         downloadBookingReceipt({
             bookingId: createdBooking && createdBooking.id ? createdBooking.id : "ROOM-" + Date.now(),
@@ -958,28 +976,19 @@ document.addEventListener(
         setMinimumDate();
 
 
-        // Check user login
-
-        const loggedIn =
+        try {
             await checkUserLogin();
-
-
-        if (!loggedIn) {
-
-            return;
-
+        } catch (error) {
+            console.error("Room session check failed:", error);
         }
 
-
         // Prefill user details
-
         loadUserDetails();
 
-
         // Load selected room
-
         await loadRoomDetails();
 
+        restoreRoomBookingDraft();
 
         // Booking form
 

@@ -1,4 +1,32 @@
 (() => {
+    const updateHeaderViewportSizing = () => {
+        const frame = document.createElement("div");
+        const content = document.createElement("div");
+        frame.style.cssText = "position:fixed;inset:0 auto auto 0;width:100vw;height:100vh;overflow-y:scroll;visibility:hidden;pointer-events:none;z-index:-1";
+        content.style.cssText = "width:100%;height:200vh";
+        frame.appendChild(content);
+        document.body.appendChild(frame);
+
+        const viewportWidth = frame.getBoundingClientRect().width;
+        const contentWidth = content.getBoundingClientRect().width;
+        document.documentElement.style.setProperty(
+            "--site-header-scrollbar-width",
+            `${viewportWidth - contentWidth}px`
+        );
+        document.documentElement.style.setProperty(
+            "--site-header-center",
+            `${contentWidth / 2}px`
+        );
+        document.documentElement.style.setProperty(
+            "--site-header-horizontal-padding",
+            `${contentWidth * 0.05}px`
+        );
+        frame.remove();
+    };
+
+    updateHeaderViewportSizing();
+    window.addEventListener("resize", updateHeaderViewportSizing, { passive: true });
+
     const icons = {
         home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
         library: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M8 7h8M8 11h7"/>',
@@ -119,11 +147,7 @@
                         </div>
                         <div class="profile-divider"></div>
                         <a href="user-dashboard.html">My Dashboard</a>
-                        <a href="profile.html">My Profile</a>
-                        <a href="my-library-bookings.html">My Library Bookings</a>
-                        <a href="my-room-bookings.html">My Room Bookings</a>
-                        <a href="settings.html">Account Settings</a>
-                        <button type="button" class="profile-logout" id="profileLogoutButton">Logout</button>
+                        <button type="button" class="profile-logout" id="profileLogoutButton">Log Out</button>
                     </div>
                 </div>
             </div>
@@ -155,6 +179,59 @@
         header.after(spacer);
     }
 
+    const navbarAuth = body.querySelector(".navbar-auth");
+    if (navbarAuth) {
+        let adminDashboardButton = navbarAuth.querySelector("#adminDashboardButton");
+        if (!adminDashboardButton) {
+            adminDashboardButton = document.createElement("a");
+            adminDashboardButton.id = "adminDashboardButton";
+            adminDashboardButton.href = "admin-dashboard.html";
+            adminDashboardButton.className = "signin-btn hidden";
+            adminDashboardButton.textContent = "Admin Dashboard";
+            const authButton = navbarAuth.querySelector("#authButton");
+            if (authButton) {
+                authButton.after(adminDashboardButton);
+            } else {
+                navbarAuth.prepend(adminDashboardButton);
+            }
+        }
+
+        const profileDropdown = navbarAuth.querySelector("#profileDropdown");
+        if (profileDropdown) {
+            let dashboardLink = null;
+            profileDropdown.querySelectorAll("a").forEach(link => {
+                if (link.getAttribute("href") === "user-dashboard.html" && !dashboardLink) {
+                    dashboardLink = link;
+                } else {
+                    link.remove();
+                }
+            });
+
+            let logoutButton = profileDropdown.querySelector("#profileLogoutButton");
+            profileDropdown.querySelectorAll("button").forEach(button => {
+                if (button !== logoutButton) {
+                    button.remove();
+                }
+            });
+
+            if (!dashboardLink) {
+                dashboardLink = document.createElement("a");
+                dashboardLink.href = "user-dashboard.html";
+                profileDropdown.append(dashboardLink);
+            }
+            dashboardLink.textContent = "My Dashboard";
+
+            if (!logoutButton) {
+                logoutButton = document.createElement("button");
+                logoutButton.id = "profileLogoutButton";
+                logoutButton.type = "button";
+                logoutButton.className = "profile-logout";
+                profileDropdown.append(logoutButton);
+            }
+            logoutButton.textContent = "Log Out";
+        }
+    }
+
     if (header.querySelector("#menuButton") && !body.querySelector("#sideMenu")) {
         const template = document.createElement("template");
         template.innerHTML = sidebarMarkup.trim();
@@ -165,6 +242,39 @@
     if (sideMenu && !sideMenu.dataset.standardized) {
         standardizeSidebar(sideMenu);
         sideMenu.dataset.standardized = "true";
+    }
+
+    const homePage = /\/(?:index\.html)?$/i.test(window.location.pathname);
+    const sectionIds = {
+        about: "about",
+        contact: "contact",
+        location: "location"
+    };
+    const scrollToCurrentSection = () => {
+        const sectionId = window.location.hash.slice(1);
+        if (homePage && sectionIds[sectionId]) {
+            document.getElementById(sectionId)?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    };
+
+    if (homePage && sectionIds[window.location.hash.slice(1)]) {
+        if (document.readyState === "complete") {
+            requestAnimationFrame(scrollToCurrentSection);
+        } else {
+            window.addEventListener("load", scrollToCurrentSection, { once: true });
+        }
+    }
+
+    if (sideMenu) {
+        sideMenu.querySelectorAll(".side-nav a").forEach(link => {
+            const section = sectionIds[link.textContent.trim().toLowerCase()];
+            if (section) {
+                link.href = homePage ? `#${section}` : `index.html#${section}`;
+            }
+        });
     }
 
     const adminSidebar = body.querySelector("#adminSidebar");
@@ -201,6 +311,25 @@
         menuButton.addEventListener("click", openMenu);
         closeMenu?.addEventListener("click", closeSidebar);
         menuOverlay.addEventListener("click", closeSidebar);
+        sideMenu.querySelectorAll(".side-nav a").forEach(link => {
+            const section = sectionIds[link.textContent.trim().toLowerCase()];
+            link.addEventListener("click", event => {
+                closeSidebar();
+
+                if (homePage && section) {
+                    event.preventDefault();
+                    if (window.location.hash !== `#${section}`) {
+                        window.history.pushState(null, "", `#${section}`);
+                    }
+                    requestAnimationFrame(() => {
+                        document.getElementById(section)?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    });
+                }
+            });
+        });
         document.addEventListener("keydown", event => {
             if (event.key === "Escape") closeSidebar();
         });

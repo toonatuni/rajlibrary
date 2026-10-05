@@ -54,55 +54,6 @@
 }
 
 
-/* ==========================================
-   NAVBAR
-========================================== */
-
-.user-dashboard-navbar {
-
-    min-height:
-
-        78px;
-
-    padding:
-
-        0 6%;
-
-    display:
-
-        flex;
-
-    align-items:
-
-        center;
-
-    justify-content:
-
-        space-between;
-
-    background:
-
-        #ffffff;
-
-    border-bottom:
-
-        1px solid #e7eaf0;
-
-    position:
-
-        sticky;
-
-    top:
-
-        0;
-
-    z-index:
-
-        1000;
-
-}
-
-
 .dashboard-brand {
 
     display:
@@ -833,6 +784,13 @@
 
         25px;
 
+}
+
+.dashboard-feature-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 25px;
 }
 
 
@@ -1822,15 +1780,6 @@
 @media (
     max-width: 700px
 ) {
-
-    .user-dashboard-navbar {
-
-        padding:
-
-            0 5%;
-
-    }
-
 
     .dashboard-home-link {
 

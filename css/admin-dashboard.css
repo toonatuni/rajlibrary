@@ -314,27 +314,6 @@ body * {
 
 /* ================= TOPBAR ================= */
 
-.admin-topbar {
-    height: 80px;
-
-    background: var(--surface);
-
-    border-bottom:
-        1px solid var(--border);
-
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 28px;
-
-    position: sticky;
-    top: 0;
-
-    z-index: 500;
-}
-
 .admin-topbar-left {
     display: flex;
     align-items: center;
@@ -450,6 +429,8 @@ body * {
 
 .notification-button {
     position: relative;
+    display: inline-grid;
+    place-items: center;
 
     width: 42px;
     height: 42px;
@@ -464,11 +445,13 @@ body * {
 }
 
 .notification-icon {
+    width: 20px;
+    height: 20px;
     color: var(--primary);
-
-    font-size: 12px;
-
-    font-weight: 800;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .notification-count {
@@ -1707,10 +1690,6 @@ body * {
         display: block;
     }
 
-    .admin-topbar {
-        padding: 0 18px;
-    }
-
     .admin-content {
         padding: 20px;
     }
@@ -1721,11 +1700,6 @@ body * {
 }
 
 @media (max-width: 700px) {
-
-    .admin-topbar {
-        height: 72px;
-        gap: 10px;
-    }
 
     .admin-topbar-left {
         min-width: 0;
@@ -1805,16 +1779,6 @@ body * {
         padding: 14px;
     }
 
-    .admin-topbar {
-        padding: 0 12px;
-    }
-
-    .sidebar-toggle {
-        width: 38px;
-        height: 38px;
-        padding: 7px;
-    }
-
     .admin-topbar-left h1 {
         font-size: 17px;
     }
@@ -1861,16 +1825,6 @@ body * {
 /* =========================================================
    UPDATED INDEX-STYLE ADMIN TOP NAVBAR
 ========================================================= */
-.admin-topbar {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    min-height: 80px;
-    height: auto;
-    padding: 12px 28px;
-    z-index: 900;
-}
-
 .admin-topbar-left {
     min-width: 0;
     flex: 1;
@@ -2062,10 +2016,6 @@ body * {
 }
 
 @media (max-width: 760px) {
-    .admin-topbar {
-        padding: 10px 14px;
-    }
-
     .admin-page-heading {
         display: none;
     }
@@ -2145,18 +2095,9 @@ body * {
     margin-bottom: 3px;
 }
 
-.admin-page .admin-topbar {
-    min-height: 68px;
-    padding: 8px 22px;
-}
-
 @media (max-width: 760px) {
     .admin-page .admin-content {
         padding: 16px;
-    }
-
-    .admin-page .admin-topbar {
-        padding: 8px 14px;
     }
 
     .admin-page .welcome-banner {

@@ -460,6 +460,8 @@ function setUserInterface(user) {
 // LOAD USER DASHBOARD
 // ==========================================
 
+document.body.style.visibility = "hidden";
+
 async function loadUserDashboard() {
 
 
@@ -491,7 +493,7 @@ async function loadUserDashboard() {
             }
 
             window.location.href = "user-login.html";
-            return;
+            return false;
 
         }
 
@@ -508,8 +510,7 @@ async function loadUserDashboard() {
             window.location.href =
                 "user-login.html";
 
-
-            return;
+            return false;
 
         }
 
@@ -517,6 +518,25 @@ async function loadUserDashboard() {
         currentUser =
             data.user;
 
+        const {
+            data: profile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("role")
+            .eq("id", currentUser.id)
+            .maybeSingle();
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        if (String(profile?.role || "user").toLowerCase() === "admin") {
+            window.location.replace("admin-dashboard.html");
+            return false;
+        }
+
+        document.body.style.visibility = "visible";
 
         setUserInterface(
             currentUser
@@ -536,6 +556,7 @@ async function loadUserDashboard() {
 
         await loadLibraryBookings();
 
+        return true;
 
     } catch (error) {
 
@@ -552,6 +573,7 @@ async function loadUserDashboard() {
         window.location.href =
             "user-login.html";
 
+        return false;
     }
 
 }
@@ -924,7 +946,10 @@ async function cancelUserBooking(bookingId) {
                 .eq("id", booking.seat_id);
         }
 
-        await loadUserDashboard();
+        const isUserDashboard = await loadUserDashboard();
+        if (!isUserDashboard) {
+            return;
+        }
         await loadBookingHistory();
         alert("Booking cancelled successfully.");
     } catch (error) {
@@ -1433,6 +1458,11 @@ async function logoutUser() {
             throw error;
 
         }
+
+        localStorage.removeItem("user");
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("userSession");
+        localStorage.removeItem("isLoggedIn");
 
 
         window.location.href =

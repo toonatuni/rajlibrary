@@ -14,111 +14,12 @@ document.addEventListener(
 
     async () => {
 
-
-        const user =
-
-            await checkUserLogin();
-
-
-        if (!user) {
-
-            return;
-
-        }
-
-
         await loadRooms();
 
 
     }
 
 );
-
-
-
-// ==========================================
-// CHECK USER LOGIN
-// ==========================================
-
-async function checkUserLogin() {
-
-
-    try {
-
-
-        const {
-
-            data: {
-
-                session
-
-            },
-
-            error
-
-        } =
-
-        await supabaseClient
-            .auth
-            .getSession();
-
-
-        if (error) {
-
-            const isMissingSessionError =
-                /AuthSessionMissingError|Auth session missing/i.test(
-                    (error.name || "") + " " + (error.message || "")
-                );
-
-            if (!isMissingSessionError) {
-                console.error(
-                    "Login Check Error:",
-                    error
-                );
-            }
-        }
-
-
-        if (!session) {
-
-
-            alert(
-
-                "Please login first."
-
-            );
-
-
-            window.location.href =
-
-                "user-login.html";
-
-
-            return null;
-
-        }
-
-
-        return session.user;
-
-
-    } catch (error) {
-
-
-        console.error(
-
-            "User Login Error:",
-
-            error
-
-        );
-
-
-        return null;
-
-    }
-
-}
 
 
 
@@ -220,9 +121,7 @@ async function loadRooms() {
 
         }
 
-        const visibleRooms = rooms.filter(
-            room => String(room.room_number || "").trim().toUpperCase() !== "R-202"
-        );
+        const visibleRooms = rooms;
 
         if (visibleRooms.length === 0) {
             container.innerHTML = "<p>No rooms found.</p>";
@@ -275,25 +174,31 @@ async function loadRooms() {
                                 <img
                                     class="room-card-image"
                                     src="images/room-101.jpg"
-                                    alt="Room ${room.room_number || "-"}"
+                                    alt="Room ${escapeRoomHTML(room.room_number || "-")}"
                                 >
                                 <span class="room-card-status ${isAvailable ? "available" : "unavailable"}">
-                                    ${room.status || "-"}
+                                    ${escapeRoomHTML(room.status || "-")}
                                 </span>
                             </div>
 
                             <div class="room-card-content">
-                                <h3>Room ${room.room_number || "-"}</h3>
+                                <h3>Room ${escapeRoomHTML(room.room_number || "-")}</h3>
 
                                 <div class="room-card-details">
                                     <p>
                                         <span>Room type</span>
-                                        <strong>${room.room_type || "-"}</strong>
+                                        <strong>${escapeRoomHTML(room.room_type || "-")}</strong>
                                     </p>
                                     <p>
                                         <span>Capacity</span>
-                                        <strong>${room.capacity || "-"}</strong>
+                                        <strong>${escapeRoomHTML(room.capacity || "-")}</strong>
                                     </p>
+                                    ${room.description ? `
+                                    <p>
+                                        <span>Description</span>
+                                        <strong>${escapeRoomHTML(room.description)}</strong>
+                                    </p>
+                                    ` : ""}
                                 </div>
 
                                 <div class="room-card-footer">
@@ -314,7 +219,7 @@ async function loadRooms() {
 
                                         class="book-btn"
 
-                                        data-room-id="${room.id}"
+                                        data-room-id="${escapeRoomHTML(room.id)}"
 
                                     >
 
@@ -477,6 +382,16 @@ async function loadRooms() {
 }
 
 
+function escapeRoomHTML(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
 
 // ==========================================
 // GO TO ROOM BOOKING PAGE
@@ -506,15 +421,8 @@ async function bookRoom(
         // ==================================
 
         const {
-
-            data: {
-
-                user
-
-            },
-
+            data,
             error
-
         } =
 
         await supabaseClient
@@ -523,23 +431,26 @@ async function bookRoom(
 
             .getUser();
 
+        const isMissingSession =
+            error &&
+            /AuthSessionMissingError|Auth session missing/i.test(
+                (error.name || "") + " " + (error.message || "")
+            );
 
-        if (error) {
+        if (error && !isMissingSession) {
 
             throw error;
 
         }
 
+        const user = data?.user;
 
         if (!user) {
 
-
-            alert(
-
-                "Please login first."
-
+            sessionStorage.setItem(
+                "pendingRoomBookingId",
+                roomId
             );
-
 
             window.location.href =
 
@@ -550,6 +461,7 @@ async function bookRoom(
 
         }
 
+        sessionStorage.removeItem("pendingRoomBookingId");
 
         // ==================================
         // OPEN ROOM BOOKING PAGE WITH ROOM ID
